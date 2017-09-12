@@ -1,15 +1,15 @@
 module HMAC_SHA2_256
 
-open FStar.HyperStack.All
-
-module ST = FStar.HyperStack.ST
 
 open FStar.Mul
 open FStar.Ghost
 open FStar.HyperStack
 open FStar.HyperStack.ST
+open FStar.HyperStack.All
 open FStar.Buffer
 open FStar.UInt32
+
+open Hacl.Spec.Endianness
 
 module Hash = Hacl.Hash.SHA2_256
 module Spec = Spec.HMAC.SHA2_256
@@ -17,8 +17,8 @@ module MAC = Hacl.HMAC.SHA2_256
 
 
 (* Definition of base types *)
-private let uint8_ht   = Hacl.UInt8.t
-private let uint32_t  = FStar.UInt32.t
+private let uint8_ht = Hacl.UInt8.t
+private let uint32_t = FStar.UInt32.t
 private let uint8_p  = Buffer.buffer uint8_ht
 
 
@@ -38,14 +38,10 @@ val hmac_core:
         (ensures  (fun h0 _ h1 -> live h1 mac /\ live h0 mac
                              /\ live h1 key /\ live h0 key
                              /\ live h1 data /\ live h0 data /\ modifies_1 mac h0 h1
-                             /\ (as_seq h1 mac == Spec.hmac_core (as_seq h0 key) (as_seq h0 data))))
-
-#reset-options "--max_fuel 0 --z3rlimit 10"
+                             /\ (reveal_sbytes (as_seq h1 mac) == Spec.hmac_core (reveal_sbytes (as_seq h0 key)) (reveal_sbytes (as_seq h0 data)))))
 
 let hmac_core mac key data len = MAC.hmac_core mac key data len
 
-//
-//
 
 #reset-options "--max_fuel 0 --z3rlimit 25"
 
@@ -60,8 +56,6 @@ val hmac:
         (ensures  (fun h0 _ h1 -> live h1 mac /\ live h0 mac
                              /\ live h1 key /\ live h0 key
                              /\ live h1 data /\ live h0 data /\ modifies_1 mac h0 h1
-                             /\ (as_seq h1 mac == Spec.hmac (as_seq h0 key) (as_seq h0 data))))
-
-#reset-options "--max_fuel 0 --z3rlimit 10"
+                             /\ (reveal_sbytes (as_seq h1 mac) == Spec.hmac (reveal_sbytes (as_seq h0 key)) (reveal_sbytes (as_seq h0 data)))))
 
 let hmac mac key keylen data datalen = MAC.hmac mac key keylen data datalen
