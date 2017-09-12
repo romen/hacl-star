@@ -611,7 +611,7 @@ let update_core hash_w data data_w ws_w k_w =
   copy_hash hash_0 hash_w;
 
   let h3 = ST.get() in
-  
+
   lemma_modifies_0_1' hash_0 h1 h2 h3;
   no_upd_lemma_1 h2 h3 hash_0 data;
   no_upd_lemma_1 h2 h3 hash_0 data_w;

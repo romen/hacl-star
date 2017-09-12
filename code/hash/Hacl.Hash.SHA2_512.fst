@@ -804,7 +804,7 @@ val update_multi:
   data  :uint8_p {length data % v size_block = 0 /\ disjoint state data} ->
   n     :uint32_t{v n * v size_block = length data} ->
   Stack unit
-        (requires (fun h0 -> live h0 state /\ live h0 data /\ 
+        (requires (fun h0 -> live h0 state /\ live h0 data /\
                  (let seq_k = Seq.slice (as_seq h0 state) (U32.v pos_k_w) (U32.(v pos_k_w + v size_k_w)) in
                   let seq_counter = Seq.slice (as_seq h0 state) (U32.v pos_count_w) (U32.(v pos_count_w + v size_count_w)) in
                   let counter = Seq.index seq_counter 0 in
@@ -819,28 +819,28 @@ val update_multi:
                   let seq_counter1 = Seq.slice (as_seq h1 state) (U32.v pos_count_w) (U32.(v pos_count_w + v size_count_w)) in
                   let counter0 = Seq.index seq_counter0 0 in
                   let counter1 = Seq.index seq_counter1 0 in
-                  seq_k0 == seq_k1 /\ 
+                  seq_k0 == seq_k1 /\
                   H64.v counter1 = H64.v counter0 + v n /\
                   H64.v counter1 < pow2 64 /\
-                  reveal_h64s seq_hash1 == 
+                  reveal_h64s seq_hash1 ==
                   Spec.update_multi (reveal_h64s seq_hash0) (reveal_sbytes seq_blocks) )))
 
 let rec update_multi state data n =
   let h0 = ST.get () in
 
   let inv (h:HS.mem) (i:nat) : Type0 =
-    live h state /\ live h data /\ modifies_1 state h0 h /\ 0 <= i /\ i <= v n /\ 
+    live h state /\ live h data /\ modifies_1 state h0 h /\ 0 <= i /\ i <= v n /\
     (let hash0 = // Starting value
       Seq.slice (as_seq h0 state) (U32.v pos_whash_w) (U32.(v pos_whash_w + v size_whash_w)) in
-     let seq_counter0 = 
+     let seq_counter0 =
        Seq.slice (as_seq h0 state) (U32.v pos_count_w) (U32.(v pos_count_w + v size_count_w)) in
-     let counter0 = Seq.index seq_counter0 0 in    
+     let counter0 = Seq.index seq_counter0 0 in
      let seq_hash = Seq.slice (as_seq h state) (U32.v pos_whash_w) (U32.(v pos_whash_w + v size_whash_w)) in
      let seq_k = Seq.slice (as_seq h state) (U32.v pos_k_w) (U32.(v pos_k_w + v size_k_w)) in
      let seq_counter = Seq.slice (as_seq h state) (U32.v pos_count_w) (U32.(v pos_count_w + v size_count_w)) in
      let counter = Seq.index seq_counter 0 in
      let blocks = as_seq h (Buffer.sub data 0ul (U32.uint_to_t i *^ size_block)) in
-     reveal_h64s seq_k == Spec.k /\ 
+     reveal_h64s seq_k == Spec.k /\
      H64.v counter < pow2 64 - v n + i /\
      H64.v counter = H64.v counter0 + i /\
      reveal_h64s seq_hash ==
@@ -853,7 +853,7 @@ let rec update_multi state data n =
   let f (i:uint32_t{0 <= v i /\ v i < v n}) : Stack unit
     (requires (fun h -> inv h (v i)))
     (ensures  (fun h0 _ h1 -> inv h0 (v i) /\ inv h1 (v i + 1)))
-  = 
+  =
     let h = ST.get() in
     let blocks = Buffer.sub data 0ul (i *^ size_block) in
     let b      = Buffer.sub data (i *^ size_block) size_block in

@@ -306,7 +306,7 @@ let hmac_core mac key data len =
 
   (* Initialize constants *)
   let ipad = Buffer.create (u8_to_h8 0x36uy) Hash.size_block in
-  (**) let h0' = ST.get() in  
+  (**) let h0' = ST.get() in
   let opad = Buffer.create (u8_to_h8 0x5cuy) Hash.size_block in
   (**) let h1 = ST.get () in
   (**) lemma_modifies_0_0 h0 h0' h1;
