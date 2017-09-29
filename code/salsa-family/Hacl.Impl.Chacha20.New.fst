@@ -92,6 +92,17 @@ assume val uint32s_from_le_bytes:
        o == Spec.Lib.uint32s_from_le (U32.v len) i)))
 
 
+assume val uint32s_to_le_bytes:
+  output:uint8_p ->
+  input:uint32_p{disjoint output input} ->
+  len:U32.t{length input = U32.v len /\ 4 * U32.v len = length output} ->
+  Stack unit
+    (requires (fun h -> live h output /\ live h input))
+    (ensures  (fun h0 _ h1 -> live h1 output /\ live h0 input /\ P.modifies (P.loc_buffer output) h0 h1 /\
+      (let o = reveal_sbytes (as_seq h1 output) in
+       let i = reveal_h32s (as_seq h0 input) in
+       o == Spec.Lib.uint32s_to_le (U32.v len) i)))
+
 [@ "substitute"]
 private
 val keysetup:
@@ -358,156 +369,158 @@ val sum_states:
 let sum_states st st' =
   L.in_place_map2 st st' 16ul (fun x y -> H32.(x +%^ y))
 
-// [@ "c_inline"]
-// val copy_state:
-//   st:state ->
-//   st':state{disjoint st st'} ->
-//   Stack unit
-//     (requires (fun h -> live h st /\ live h st'))
-//     (ensures (fun h0 _ h1 -> live h1 st /\ live h0 st' /\ P.modifies (P.loc_buffer st) h0 h1
-//       /\ (let s = as_seq h0 st' in let s' = as_seq h1 st in s' == s)))
+[@ "c_inline"]
+val copy_state:
+  st:state ->
+  st':state{disjoint st st'} ->
+  Stack unit
+    (requires (fun h -> live h st /\ live h st'))
+    (ensures (fun h0 _ h1 -> live h1 st /\ live h0 st' /\ P.modifies (P.loc_buffer st) h0 h1
+      /\ (let s = as_seq h0 st' in let s' = as_seq h1 st in s' == s)))
 
-// [@ "c_inline"]
-// let copy_state st st' =
-//   BufferNG.blit st' 0ul st 0ul 16ul;
-//   let h = ST.get() in
-//   Seq.lemma_eq_intro (as_seq h st) (Seq.slice (as_seq h st) 0 16);
-//   Seq.lemma_eq_intro (as_seq h st') (Seq.slice (as_seq h st') 0 16);
-//   Seq.lemma_eq_intro (as_seq h st) (as_seq h st')
+[@ "c_inline"]
+let copy_state st st' =
+  BufferNG.blit st' 0ul st 0ul 16ul;
+  let h = ST.get() in
+  Seq.lemma_eq_intro (as_seq h st) (Seq.slice (as_seq h st) 0 16);
+  Seq.lemma_eq_intro (as_seq h st') (Seq.slice (as_seq h st') 0 16);
+  Seq.lemma_eq_intro (as_seq h st) (as_seq h st')
 
 
-// #reset-options " --max_fuel 0 --z3rlimit 100"
+#reset-options "--z3rlimit 100"
 
-// type log_t_ = | MkLog: k:Spec.key -> n:Spec.nonce -> log_t_
-// type log_t = Ghost.erased log_t_
+type log_t_ = | MkLog: k:Spec.key -> n:Spec.nonce -> log_t_
+type log_t = Ghost.erased log_t_
 
-// private
-// val lemma_setup_inj:
-//   k:Spec.key -> n:Spec.nonce -> c:Spec.counter ->
-//   k':Spec.key -> n':Spec.nonce -> c':Spec.counter -> Lemma
-//   (requires (Spec.setup k n c == Spec.setup k' n' c'))
-//   (ensures (k == k' /\ n == n' /\ c == c'))
-// let lemma_setup_inj k n c k' n' c' =
-//   let s = Spec.setup k n c in let s' = Spec.setup k' n' c' in
-//   Seq.lemma_eq_intro (Seq.slice s 4 12) (Seq.slice s' 4 12);
-//   Seq.lemma_eq_intro (Seq.slice s 12 13) (Seq.slice s' 12 13);
-//   Seq.lemma_eq_intro (Seq.slice s 13 16) (Seq.slice s' 13 16);
-//   Seq.lemma_eq_intro (Seq.slice s 4 12) (Spec.Lib.uint32s_from_le 8 k);
-//   Seq.lemma_eq_intro (Seq.slice s' 4 12) (Spec.Lib.uint32s_from_le 8 k');
-//   Seq.lemma_eq_intro (Seq.slice s 13 16) (Spec.Lib.uint32s_from_le 3 n);
-//   Seq.lemma_eq_intro (Seq.slice s' 13 16) (Spec.Lib.uint32s_from_le 3 n');
-//   Seq.lemma_eq_intro (Seq.slice s 12 13) (Spec.Lib.singleton ( (U32.uint_to_t c)));
-//   Seq.lemma_eq_intro (Seq.slice s' 12 13) (Spec.Lib.singleton ( (U32.uint_to_t c')));
-//   cut (c == U32.v (Seq.index (Seq.slice s 12 13) 0));
-//   cut (c' == U32.v (Seq.index (Seq.slice s' 12 13) 0));
-//   Spec.Lib.lemma_uint32s_from_le_inj 8 k k';
-//   Spec.Lib.lemma_uint32s_from_le_inj 3 n n'
-
+private
+val lemma_setup_inj:
+  k:Spec.key -> n:Spec.nonce -> c:Spec.counter ->
+  k':Spec.key -> n':Spec.nonce -> c':Spec.counter -> Lemma
+  (requires (Spec.setup k n c == Spec.setup k' n' c'))
+  (ensures (k == k' /\ n == n' /\ c == c'))
+let lemma_setup_inj k n c k' n' c' =
+  let s = Spec.setup k n c in let s' = Spec.setup k' n' c' in
+  Seq.lemma_eq_intro (Seq.slice s 4 12) (Seq.slice s' 4 12);
+  Seq.lemma_eq_intro (Seq.slice s 12 13) (Seq.slice s' 12 13);
+  Seq.lemma_eq_intro (Seq.slice s 13 16) (Seq.slice s' 13 16);
+  Seq.lemma_eq_intro (Seq.slice s 4 12) (Spec.Lib.uint32s_from_le 8 k);
+  Seq.lemma_eq_intro (Seq.slice s' 4 12) (Spec.Lib.uint32s_from_le 8 k');
+  Seq.lemma_eq_intro (Seq.slice s 13 16) (Spec.Lib.uint32s_from_le 3 n);
+  Seq.lemma_eq_intro (Seq.slice s' 13 16) (Spec.Lib.uint32s_from_le 3 n');
+  Seq.lemma_eq_intro (Seq.slice s 12 13) (Spec.Lib.singleton ( (U32.uint_to_t c)));
+  Seq.lemma_eq_intro (Seq.slice s' 12 13) (Spec.Lib.singleton ( (U32.uint_to_t c')));
+  cut (c == U32.v (Seq.index (Seq.slice s 12 13) 0));
+  cut (c' == U32.v (Seq.index (Seq.slice s' 12 13) 0));
+  Spec.Lib.lemma_uint32s_from_le_inj 8 k k';
+  Spec.Lib.lemma_uint32s_from_le_inj 3 n n'
 
 // Invariant on the state recording which block was computed last
-// let invariant (log:log_t) (h:mem) (st:state) : GTot Type0 =
-//   live h st /\ (let log = Ghost.reveal log in let s   = as_seq h st in
-//     match log with | MkLog key nonce -> reveal_h32s s == Spec.setup key nonce (H32.v (Seq.index s 12)))
+let invariant (log:log_t) (h:mem) (st:state) : GTot Type0 =
+  live h st /\ (let log = Ghost.reveal log in let s : (Seq.seq UInt32.t) = as_seq h st <: (Seq.seq UInt32.t) in
+    match log with | MkLog key nonce -> reveal_h32s s == Spec.setup key nonce (H32.v (Seq.index s 12)))
+
+private
+val lemma_invariant:
+  st:Spec.state ->
+  k:Spec.key -> n:Spec.nonce -> c:H32.t -> c':H32.t -> Lemma
+    (requires (st == Spec.setup k n (H32.v c)))
+    (ensures (Seq.upd st 12 (h32_to_u32 c') == Spec.setup k n (H32.v c')))
+let lemma_invariant s k n c c' =
+  let s' = Seq.upd s 12 (h32_to_u32 c') in
+  Seq.lemma_eq_intro (Seq.slice s 4 12) (Seq.slice s' 4 12);
+  Seq.lemma_eq_intro (Seq.slice s 13 16) (Seq.slice s' 13 16);
+  Seq.lemma_eq_intro (Seq.slice s 4 12) (Spec.Lib.uint32s_from_le 8 k);
+  Seq.lemma_eq_intro (Seq.slice s' 4 12) (Spec.Lib.uint32s_from_le 8 k);
+  Seq.lemma_eq_intro (Seq.slice s 13 16) (Spec.Lib.uint32s_from_le 3 n);
+  Seq.lemma_eq_intro (Seq.slice s' 13 16) (Spec.Lib.uint32s_from_le 3 n);
+  cut (h32_to_u32 c == (Seq.index (Seq.slice s 12 13) 0));
+  cut (h32_to_u32 c' == (Seq.index (Seq.slice s' 12 13) 0));
+  Spec.Lib.lemma_uint32s_from_le_inj 8 k k;
+  Spec.Lib.lemma_uint32s_from_le_inj 3 n n;
+  Seq.lemma_eq_intro s' (Spec.setup k n (H32.v c'))
 
 
-// private
-// val lemma_invariant:
-//   st:Spec.state ->
-//   k:Spec.key -> n:Spec.nonce -> c:H32.t -> c':H32.t -> Lemma
-//     (requires (st == Spec.setup k n (H32.v c)))
-//     (ensures (Seq.upd st 12 (h32_to_u32 c') == Spec.setup k n (H32.v c')))
-// let lemma_invariant s k n c c' =
-//   let s' = Seq.upd s 12 (h32_to_u32 c') in
-//   Seq.lemma_eq_intro (Seq.slice s 4 12) (Seq.slice s' 4 12);
-//   Seq.lemma_eq_intro (Seq.slice s 13 16) (Seq.slice s' 13 16);
-//   Seq.lemma_eq_intro (Seq.slice s 4 12) (Spec.Lib.uint32s_from_le 8 k);
-//   Seq.lemma_eq_intro (Seq.slice s' 4 12) (Spec.Lib.uint32s_from_le 8 k);
-//   Seq.lemma_eq_intro (Seq.slice s 13 16) (Spec.Lib.uint32s_from_le 3 n);
-//   Seq.lemma_eq_intro (Seq.slice s' 13 16) (Spec.Lib.uint32s_from_le 3 n);
-//   cut (h32_to_u32 c == (Seq.index (Seq.slice s 12 13) 0));
-//   cut (h32_to_u32 c' == (Seq.index (Seq.slice s' 12 13) 0));
-//   Spec.Lib.lemma_uint32s_from_le_inj 8 k k;
-//   Spec.Lib.lemma_uint32s_from_le_inj 3 n n;
-//   Seq.lemma_eq_intro s' (Spec.setup k n (H32.v c'))
+private
+val lemma_state_counter:
+  k:Spec.key -> n:Spec.nonce -> c:Spec.counter ->
+  Lemma (U32.v (Seq.index (Spec.setup k n (c)) 12) == c)
+let lemma_state_counter k n c = ()
 
 
-// private
-// val lemma_state_counter:
-//   k:Spec.key -> n:Spec.nonce -> c:Spec.counter ->
-//   Lemma (U32.v (Seq.index (Spec.setup k n (c)) 12) == c)
-// let lemma_state_counter k n c = ()
+#reset-options "--z3rlimit 100"
+
+[@ "c_inline"]
+private
+val chacha20_core:
+  log:log_t ->
+  k:state ->
+  st:state{disjoint st k} ->
+  ctr:UInt32.t ->
+  Stack log_t
+    (requires (fun h -> live h k /\ live h st /\ invariant log h st))
+    (ensures  (fun h0 updated_log h1 -> live h0 st /\ live h0 k /\ invariant log h0 st
+      /\ live h1 k /\ invariant updated_log h1 st /\ P.modifies (P.loc_union (P.loc_buffer k) (P.loc_buffer st)) h0 h1
+      /\ (let key = reveal_h32s (as_seq h1 k) in
+          let stv = reveal_h32s (as_seq h1 st) in
+          Seq.index stv 12 == ctr /\
+         (match Ghost.reveal log, Ghost.reveal updated_log with
+         | MkLog k n, MkLog k' n' ->
+             key == chacha20_core stv /\ k == k' /\ n == n'))))
+
+[@ "c_inline"]
+let chacha20_core log k st ctr =
+  let h_0 = ST.get() in
+  st.(12ul) <- uint32_to_sint32 ctr;
+  lemma_invariant (reveal_h32s (as_seq h_0 st)) (Ghost.reveal log).k (Ghost.reveal log).n (Seq.index (as_seq h_0 st) 12) (uint32_to_sint32 ctr);
+  copy_state k st;
+  let h' = ST.get() in
+  cut (as_seq h' k == as_seq h' st);
+  rounds k;
+  let h'' = ST.get() in
+  cut (reveal_h32s (as_seq h'' k) == Spec.Chacha20.rounds (reveal_h32s (as_seq h' st)));
+  sum_states k st;
+  let h = ST.get() in
+  cut (reveal_h32s (as_seq h k) == chacha20_core (reveal_h32s (as_seq h st)));
+  Ghost.elift1 (fun l -> match l with | MkLog k n -> MkLog k n) log
 
 
-// #reset-options "--max_fuel 0  --z3rlimit 400"
+[@ "c_inline"]
+val chacha20_block:
+  log:log_t ->
+  stream_block:uint8_p{length stream_block = 64} ->
+  st:state{disjoint st stream_block} ->
+  ctr:UInt32.t ->
+  Stack log_t
+    (requires (fun h -> live h stream_block /\ invariant log h st))
+    (ensures  (fun h0 updated_log h1 -> live h1 stream_block // /\ invariant log h0 st
+      /\ P.modifies (P.loc_union (P.loc_buffer stream_block) (P.loc_buffer st)) h0 h1))
+      // /\ invariant updated_log h1 st
+      // /\ (let block = reveal_sbytes (as_seq h1 stream_block) in
+      //    match Ghost.reveal log, Ghost.reveal updated_log with
+      //    | MkLog k n, MkLog k' n' ->
+      //        block == chacha20_block k n (U32.v ctr) /\ k == k' /\ n == n')))
 
-// [@ "c_inline"]
-// private
-// val chacha20_core:
-//   log:log_t ->
-//   k:state ->
-//   st:state{disjoint st k} ->
-//   ctr:UInt32.t ->
-//   Stack log_t
-//     (requires (fun h -> live h k /\ live h st /\ invariant log h st))
-//     (ensures  (fun h0 updated_log h1 -> live h0 st /\ live h0 k /\ invariant log h0 st
-//       /\ live h1 k /\ invariant updated_log h1 st /\ modifies_2 k st h0 h1
-//       /\ (let key = reveal_h32s (as_seq h1 k) in
-//           let stv = reveal_h32s (as_seq h1 st) in
-//           Seq.index stv 12 == ctr /\
-//          (match Ghost.reveal log, Ghost.reveal updated_log with
-//          | MkLog k n, MkLog k' n' ->
-//              key == chacha20_core stv /\ k == k' /\ n == n'))))
-// [@ "c_inline"]
-// let chacha20_core log k st ctr =
-//   let h_0 = ST.get() in
-//   st.(12ul) <- uint32_to_sint32 ctr;
-//   lemma_invariant (reveal_h32s (as_seq h_0 st)) (Ghost.reveal log).k (Ghost.reveal log).n (get h_0 st 12) (uint32_to_sint32 ctr);
-//   copy_state k st;
-//   let h' = ST.get() in
-//   cut (as_seq h' k == as_seq h' st);
-//   rounds k;
-//   let h'' = ST.get() in
-//   cut (reveal_h32s (as_seq h'' k) == Spec.Chacha20.rounds (reveal_h32s (as_seq h' st)));
-//   sum_states k st;
-//   let h = ST.get() in
-//   cut (reveal_h32s (as_seq h k) == chacha20_core (reveal_h32s (as_seq h st)));
-//   Ghost.elift1 (fun l -> match l with | MkLog k n -> MkLog k n) log
+[@ "c_inline"]
+let chacha20_block log stream_block st ctr =
+  (**) let hinit = ST.get() in
+  (**) push_frame();
+  (**) let h0 = ST.get() in
+  let st' = BufferNG.create (uint32_to_sint32 0ul) 16ul in
+  (**) let h1 = ST.get() in
+  let log' = chacha20_core log st' st ctr in
+  (**) let h2 = ST.get() in
+  //lemma_modifies_0_2' st st' h0 h1 h2;
+  uint32s_to_le_bytes stream_block st' 16ul;
+  let h = ST.get() in
+//  lemma_modifies_2_1'' st stream_block h0 h2 h;
+  assert (reveal_sbytes (as_seq h stream_block) == chacha20_block (Ghost.reveal log').k (Ghost.reveal log').n (U32.v ctr));
+//  assert (modifies_3_2 stream_block st h_0 h);
+  pop_frame();
+  let hfin = ST.get() in
+  P.modifies_fresh_frame_popped' hinit h0 (P.loc_union (P.loc_buffer stream_block) (P.loc_buffer st)) h hfin;
 
-
-// [@ "c_inline"]
-// val chacha20_block:
-//   log:log_t ->
-//   stream_block:uint8_p{length stream_block = 64} ->
-//   st:state{disjoint st stream_block} ->
-//   ctr:UInt32.t ->
-//   Stack log_t
-//     (requires (fun h -> live h stream_block /\ invariant log h st))
-//     (ensures  (fun h0 updated_log h1 -> live h1 stream_block /\ invariant log h0 st
-//       /\ invariant updated_log h1 st /\ modifies_2 stream_block st h0 h1
-//       /\ (let block = reveal_sbytes (as_seq h1 stream_block) in
-//          match Ghost.reveal log, Ghost.reveal updated_log with
-//          | MkLog k n, MkLog k' n' ->
-//              block == chacha20_block k n (U32.v ctr) /\ k == k' /\ n == n')))
-// [@ "c_inline"]
-// let chacha20_block log stream_block st ctr =
-//   ) let hinit = ST.get() in
-//   push_frame();
-//   ) let h0 = ST.get() in
-//   ) let h_0 = ST.get() in
-//   let st' = BufferNG.create (uint32_to_sint32 0ul) 16ul in
-//   ) let h1 = ST.get() in
-//   let log' = chacha20_core log st' st ctr in
-//   ) let h2 = ST.get() in
-//   ) lemma_modifies_0_2' st st' h0 h1 h2;
-//   uint32s_to_le_bytes stream_block st' 16ul;
-//   ) let h = ST.get() in
-//   ) lemma_modifies_2_1'' st stream_block h0 h2 h;
-//   ) assert (reveal_sbytes (as_seq h stream_block) == chacha20_block (Ghost.reveal log').k (Ghost.reveal log').n (U32.v ctr));
-//   ) assert (modifies_3_2 stream_block st h_0 h);
-//   pop_frame();
-//   ) let hfin = ST.get() in
-//   ) modifies_popped_3_2 stream_block st hinit h0 h hfin;
-//   ) Ghost.elift1 (fun l -> match l with | MkLog k n -> MkLog k n) log'
+  //modifies_popped_3_2 stream_block st hinit h0 h hfin;
+  Ghost.elift1 (fun l -> match l with | MkLog k n -> MkLog k n) log'
 
 
 // [@ "c_inline"]
@@ -585,7 +598,7 @@ let sum_states st st' =
 //   k:Spec.key -> n:Spec.nonce -> ctr:UInt32.t{UInt32.v ctr + (length input / 64) < pow2 32} -> Lemma
 //     (Spec.CTR.counter_mode_blocks chacha20_ctx chacha20_cipher k n (UInt32.v ctr)
 //                                   (reveal_sbytes (as_seq hi input))
-//     == (let prefix, block = Seq.split (as_seq hi input) (UInt32.v len - 64) in    
+//     == (let prefix, block = Seq.split (as_seq hi input) (UInt32.v len - 64) in
 //       Math.Lemmas.lemma_mod_plus (Seq.length prefix) 1 (64);
 //       Math.Lemmas.lemma_div_le (Seq.length prefix) (UInt32.v len) 64;
 //       Spec.CTR.Lemmas.lemma_div (UInt32.v len) (64);
@@ -831,7 +844,7 @@ let sum_states st st' =
 //     let _ = update_last output'' plain'' part_len log st FStar.UInt32.(ctr +^ blocks_len) in
 //     ) let h' = ST.get() in
 //     ) modifies_subbuffer_2 h1 h' output'' st output)
-//   else 
+//   else
 //     ) lemma_modifies_sub_2 h1 h1 output st;
 //   let h = ST.get() in
 //   ) lemma_modifies_2_trans output st h0 h1 h;
