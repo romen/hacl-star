@@ -12,14 +12,14 @@ open Hacl.UInt32
 open Hacl.Spec.Endianness
 open Hacl.Endianness
 open Spec.Chacha20
-open Hacl.Lib.LoadStore32
 
 module Spec = Spec.Chacha20
-
 module U32 = FStar.UInt32
 module H8  = FStar.UInt8
 module H32 = FStar.UInt32
 module P   = FStar.Pointer
+module L   = C.LoopsNG
+
 
 let u32 = U32.t
 let h32 = H32.t
@@ -332,7 +332,7 @@ let rounds st =
     live h1 st /\ P.modifies (P.loc_buffer st) h0 h1 /\ i <= 10
     /\ (let s' = reveal_h32s (as_seq h1 st) in
        let s  = reveal_h32s (as_seq h0 st) in
-       s' == repeat_spec i Spec.Chacha20.double_round s)
+       s' == L.repeat_spec i Spec.Chacha20.double_round s)
   in
   let f' (i:UInt32.t{ FStar.UInt32.( 0 <= v i /\ v i < 10 ) }): Stack unit
     (requires (fun h -> inv h (UInt32.v i)))
@@ -340,8 +340,8 @@ let rounds st =
   = double_round st;
     Spec.Loops.lemma_repeat (UInt32.v i + 1) Spec.Chacha20.double_round (reveal_h32s (as_seq h0 st))
   in
-  lemma_repeat_0 0 Spec.Chacha20.double_round (reveal_h32s (as_seq h0 st));
-  for 0ul 10ul inv f'
+  L.lemma_repeat_0 0 Spec.Chacha20.double_round (reveal_h32s (as_seq h0 st));
+  L.for 0ul 10ul inv f'
 
 
 [@ "c_inline"]
@@ -352,11 +352,11 @@ val sum_states:
     (requires (fun h -> live h st /\ live h st'))
     (ensures  (fun h0 _ h1 -> live h0 st /\ live h1 st /\ live h0 st' /\ P.modifies (P.loc_buffer st) h0 h1
       /\ (let s1 = as_seq h1 st in let s = as_seq h0 st in let s' = as_seq h0 st' in
-         s1 == seq_map2 (fun x y -> H32.(x +%^ y)) s s')))
+         s1 == L.seq_map2 (fun x y -> H32.(x +%^ y)) s s')))
 
 [@ "c_inline"]
 let sum_states st st' =
-  in_place_map2 st st' 16ul (fun x y -> H32.(x +%^ y))
+  L.in_place_map2 st st' 16ul (fun x y -> H32.(x +%^ y))
 
 // [@ "c_inline"]
 // val copy_state:
