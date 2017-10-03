@@ -495,34 +495,34 @@ val chacha20_block:
   ctr:UInt32.t ->
   Stack log_t
     (requires (fun h -> live h stream_block /\ invariant log h st))
-    (ensures  (fun h0 updated_log h1 -> live h1 stream_block // /\ invariant log h0 st
-      /\ P.modifies (P.loc_union (P.loc_buffer stream_block) (P.loc_buffer st)) h0 h1))
-      // /\ invariant updated_log h1 st
-      // /\ (let block = reveal_sbytes (as_seq h1 stream_block) in
-      //    match Ghost.reveal log, Ghost.reveal updated_log with
-      //    | MkLog k n, MkLog k' n' ->
-      //        block == chacha20_block k n (U32.v ctr) /\ k == k' /\ n == n')))
+    (ensures  (fun h0 updated_log h1 -> live h1 stream_block /\ invariant log h0 st
+      /\ P.modifies (P.loc_union (P.loc_buffer stream_block) (P.loc_buffer st)) h0 h1
+      /\ invariant updated_log h1 st
+      /\ (let block = reveal_sbytes (as_seq h1 stream_block) in
+         match Ghost.reveal log, Ghost.reveal updated_log with
+         | MkLog k n, MkLog k' n' ->
+             block == chacha20_block k n (U32.v ctr) /\ k == k' /\ n == n')))
 
 [@ "c_inline"]
 let chacha20_block log stream_block st ctr =
-  (**) let hinit = ST.get() in
+//  (**) let hinit = ST.get() in
   (**) push_frame();
-  (**) let h0 = ST.get() in
+//  (**) let h0 = ST.get() in
   let st' = BufferNG.create (uint32_to_sint32 0ul) 16ul in
-  (**) let h1 = ST.get() in
+//  (**) let h1 = ST.get() in
   let log' = chacha20_core log st' st ctr in
-  (**) let h2 = ST.get() in
+//  (**) let h2 = ST.get() in
   //lemma_modifies_0_2' st st' h0 h1 h2;
   uint32s_to_le_bytes stream_block st' 16ul;
-  (**) let h2'' = ST.get() in
+  //(**) let h2'' = ST.get() in
   //assert(invariant log' h2'' st); admit();
-  let h = ST.get() in
+//  let h = ST.get() in
 //  lemma_modifies_2_1'' st stream_block h0 h2 h;
   // assert (reveal_sbytes (as_seq h stream_block) == chacha20_block (Ghost.reveal log').k (Ghost.reveal log').n (U32.v ctr));
 //  assert (modifies_3_2 stream_block st h_0 h);
   pop_frame();
-  let hfin = ST.get() in
-  P.modifies_fresh_frame_popped' hinit h0 (P.loc_union (P.loc_buffer stream_block) (P.loc_buffer st)) h hfin;
+//  let hfin = ST.get() in
+//  P.modifies_fresh_frame_popped' hinit h0 (P.loc_union (P.loc_buffer stream_block) (P.loc_buffer st)) h hfin;
 
   //modifies_popped_3_2 stream_block st hinit h0 h hfin;
   Ghost.elift1 (fun l -> match l with | MkLog k n -> MkLog k n) log'
