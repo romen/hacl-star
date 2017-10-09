@@ -17,7 +17,6 @@ let keylen = 32   (* in bytes *)
 let blocklen = 64 (* in bytes *)
 let noncelen = 12 (* in bytes *)
 
-type st = b:seq UInt32.t{length b == 16}
 type key = lbytes keylen
 type block = lbytes blocklen
 type nonce = lbytes noncelen
@@ -25,13 +24,9 @@ type counter = UInt.uint_t 32
 
 // using @ as a functional substitute for ;
 // internally, blocks are represented as 16 x 4-byte integers
-type state = {
-  st: st;
-  st_copy: st; 
-  key_block: block}
-
+type state = m:seq UInt32.t {length m = 16}
 type idx = n:nat{n < 16}
-
+type shuffle = state -> Tot state
 
 let line (a:idx) (b:idx) (d:idx) (s:t{0 < v s /\ v s < 32}) (m:state) : Tot state =
   let m = m.[a] <- (m.[a] +%^ m.[b]) in

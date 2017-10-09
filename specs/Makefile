@@ -21,6 +21,7 @@ SPEC_FILES=	Spec.Chacha20.Lemmas.fst \
 		Spec.Chacha20.fst \
 		Spec.Chacha20.ST.fst \
 		Spec.Chacha20_vec.fst \
+		Spec.Chacha20_vec256.fst \
 		Spec.Chacha20Poly1305.fst \
 		Spec.CTR.fst \
 		Spec.Curve25519.Lemmas.fst \
@@ -77,6 +78,22 @@ chacha20.exe: Spec.Chacha20.fst
 	@echo 'let _ = print_string (if test() then "SUCCESS\n" else failwith "Test failed\n")' >> chacha-spec/Spec_Chacha20.ml
 	$(OCAMLOPT) -I chacha-spec $(OCAML_INCLUDES) chacha-spec/FStar_Endianness.ml chacha-spec/Spec_Loops.ml chacha-spec/Seq_Create.ml chacha-spec/Spec_Lib.ml chacha-spec/Spec_CTR.ml chacha-spec/Spec_Chacha20.ml -o chacha20.exe
 	./chacha20.exe
+
+chacha20-vec.exe: Spec.Chacha20_vec.fst
+	$(MAKE) -C ../code/lib/ml
+	mkdir -p chacha-spec
+	$(FSTAR_EXTRACT) --odir chacha-spec $^
+	@echo 'let _ = print_string (if test() then "SUCCESS\n" else failwith "Test failed\n")' >> chacha-spec/Spec_Chacha20_vec.ml
+	$(OCAMLOPT) -I chacha-spec $(OCAML_INCLUDES) chacha-spec/FStar_Endianness.ml chacha-spec/Spec_Loops.ml chacha-spec/Seq_Create.ml chacha-spec/Spec_Lib.ml chacha-spec/Spec_CTR.ml chacha-spec/Spec_Chacha20_vec.ml -o chacha20-vec.exe
+	./chacha20-vec.exe
+
+chacha20-vec256.exe: Spec.Chacha20_vec.fst
+	$(MAKE) -C ../code/lib/ml
+	mkdir -p chacha-spec
+	$(FSTAR_EXTRACT) --odir chacha-spec $^
+	@echo 'let _ = print_string (if test() then "SUCCESS\n" else failwith "Test failed\n")' >> chacha-spec/Spec_Chacha20_vec256.ml
+	$(OCAMLOPT) -I chacha-spec $(OCAML_INCLUDES) chacha-spec/FStar_Endianness.ml chacha-spec/Spec_Loops.ml chacha-spec/Seq_Create.ml chacha-spec/Spec_Lib.ml chacha-spec/Spec_CTR.ml chacha-spec/Spec_Chacha20_vec.ml -o chacha20-vec256.exe
+	./chacha20-vec256.exe
 
 chacha20-st.exe: Spec.Chacha20.ST.fst
 	$(MAKE) -C ../code/lib/ml
