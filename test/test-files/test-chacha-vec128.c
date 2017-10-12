@@ -31,10 +31,28 @@ void ossl_chacha20(uint8_t* cipher, uint8_t* plain, int len, uint8_t* nonce, uin
   EVP_CIPHER_CTX_free(ctx);
 }
 
+uint64_t median(uint64_t* a, int rounds) {
+  int i, j, temp;
+  for (i = 0; i < rounds - 1; ++i)
+    {
+      for (j = 0; j < rounds - 1 - i; ++j )
+	{
+	  if (a[j] > a[j+1])
+	    {
+	      temp = a[j+1];
+	      a[j+1] = a[j];
+	      a[j] = temp;
+	    }
+	}
+    }
+  return a[rounds/4];
+}
 
-void print_results(char *txt, double t1, uint64_t d1, int rounds, int plainlen){
+void print_results(char *txt, double t1, uint64_t *d, int rounds, int plainlen){
   printf("Testing: %s\n", txt);
-  printf("Cycles for %d * %d bytes: %" PRIu64 " (%.2fcycles/byte)\n", rounds, plainlen, d1, (double)d1/plainlen/rounds);
+  uint64_t m = median(d,rounds);
+  double mpb = (double) m / plainlen;
+  printf("Cycles for %d * %d bytes: %llu (%.2fcycles/byte)\n", rounds, plainlen, m, mpb);
   double ts = t1/CLOCKS_PER_SEC;
   printf("User time for %d times %d bytes: %fs (%fus/byte)\n", rounds, plainlen, ts, (double)(ts*1000000)/(plainlen*rounds));
 }
@@ -87,7 +105,7 @@ void flush_results(char *txt, uint64_t hacl_cy, uint64_t sodium_cy, uint64_t oss
   fclose(fp);
 }
 
-#define PLAINLEN (16*1024)
+#define PLAINLEN 1350
 #define ROUNDS 1000
 #define MACSIZE 32
 
@@ -411,49 +429,54 @@ int32_t perf_chacha() {
 
   cycles a,b;
   clock_t t1,t2;
-
+  res = 0;
+  uint64_t d[ROUNDS];
   t1 = clock();
-  a = TestLib_cpucycles_begin();
   for (int i = 0; i < ROUNDS; i++){
-    Chacha20_Vec128_chacha20(plain,plain,len, key, nonce, counter);
-    plain[0] = cipher[0];
+    a = TestLib_cpucycles_begin();
+    Chacha20_Vec128_chacha20(plain, plain, len, key, nonce, counter);
+    b = TestLib_cpucycles_end();
+    d[i] = b - a;
   }
-  b = TestLib_cpucycles_end();
   t2 = clock();
-  hacl_cy = (double)b - a;
+  hacl_cy = (double)median(d,ROUNDS);
   hacl_utime = (double)t2 - t1;
   print_results("HACL ChaCha20 speed", (double)t2-t1,
-		(double) b - a, ROUNDS, PLAINLEN);
+		d, ROUNDS, PLAINLEN);
   for (int i = 0; i < PLAINLEN; i++)
     res += (uint64_t) plain[i];
   printf("Composite result (ignore): %" PRIx64 "\n", res);
 
   t1 = clock();
-  a = TestLib_cpucycles_begin();
   for (int i = 0; i < ROUNDS; i++){
+    a = TestLib_cpucycles_begin();
     crypto_stream_chacha20_ietf_xor(plain,plain, len, nonce, key);
+    b = TestLib_cpucycles_end();
+    d[i] = b - a;
   }
-  b = TestLib_cpucycles_end();
   t2 = clock();
-  sodium_cy = (double)b - a;
+  print_results("Sodium ChaCha20 speed", (double)t2-t1,
+		d, ROUNDS, PLAINLEN);
+  sodium_cy = (double)median(d,ROUNDS);
   sodium_utime = (double)t2 - t1;
   print_results("Sodium ChaCha20 speed", (double)t2-t1,
-		(double) b - a, ROUNDS, PLAINLEN);
+		d, ROUNDS, PLAINLEN);
   for (int i = 0; i < PLAINLEN; i++)
     res += (uint64_t) plain[i];
   printf("Composite result (ignore): %" PRIx64 "\n", res);
 
   t1 = clock();
-  a = TestLib_cpucycles_begin();
   for (int i = 0; i < ROUNDS; i++){
+    a = TestLib_cpucycles_begin();
     ossl_chacha20(plain,plain, len, nonce, key);
+    b = TestLib_cpucycles_end();
+    d[i] = b - a;
   }
-  b = TestLib_cpucycles_end();
   t2 = clock();
-  ossl_cy = (double)b - a;
+  ossl_cy = (double)median(d,ROUNDS);
   ossl_utime = (double)t2 - t1;
   print_results("OpenSSL ChaCha20 speed", (double)t2-t1,
-		(double) b - a, ROUNDS, PLAINLEN);
+		d, ROUNDS, PLAINLEN);
   for (int i = 0; i < PLAINLEN; i++)
     res += (uint64_t) plain[i];
   printf("Composite result (ignore): %" PRIx64 "\n", res);
