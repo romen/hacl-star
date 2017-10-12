@@ -34,6 +34,27 @@ module F   = Hacl.Spec.Bignum.Field
 
 #reset-options "--max_fuel 0 --max_ifuel 0 --z3rlimit 50"
 
+val fsum:
+  a:felem ->
+  b:felem ->
+  Stack unit
+    (requires (fun h -> live h a /\ live h b              
+    	             /\ disjoint a b 
+		     /\ no_overflow h a b len)) 
+    (ensures (fun h0 _ h1 -> live h1 a /\ live h1 b 
+			  /\ modifies_1 a h0 h1
+			  /\ eval h1 a = eval h0 a + eval h0 b))
+
+  abstract type hint64_t
+  val v: hint64_t -> GTot uint64_t 
+  
+  val (+): hint64_t -> hint64_t -> Tot hint64_t
+  val (^): hint64_t -> hint64_t -> Tot hint64_t
+  // val (/): hint64_t -> hint64_t -> Tot hint64_t
+
+  type key = b:buffer uint64_t{length b = 32}
+  
+  
 [@"c_inline"]
 val fsum:
   a:felem ->
