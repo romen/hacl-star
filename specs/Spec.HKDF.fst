@@ -84,7 +84,8 @@ let hkdf_extract
 let hkdf_expand (p:Hash.parameters) (len_prk:size_t) (prk:lbytes len_prk) (len_info:size_t) (info:lbytes len_info) (len:size_t{len <= 255 `op_Multiply` p.size_hash}) =
   // Compute the number of blocks required for the final output
   assume(p.size_hash <> 0);
-  let n = len / p.size_hash + 1 in
+  let n = 3 in
+  // let n = len / p.size_hash + 1 in
   // Create the final output space
   let _T = create (n * p.size_hash) (u8 0) in
   // Create the intermediate _Ti space
@@ -97,11 +98,15 @@ let hkdf_expand (p:Hash.parameters) (len_prk:size_t) (prk:lbytes len_prk) (len_i
     let _Ti =
       if i = 0 then begin
         let tic0 = slice tic p.size_hash (p.size_hash + len_info + 1) in
-        HMAC.hmac p len_prk prk (len_info + 1) tic0 end
+        create p.size_hash (u8 i) end
+//        HMAC.hmac p len_prk prk (len_info + 1) tic0 end
       else begin
         let _Ti_prev = slice _T min max in
         let tic = update_slice tic 0 p.size_hash _Ti_prev in
         let tic = tic.[p.size_hash + len_info] <- u8 i in
-        HMAC.hmac p len_prk prk (p.size_hash + len_info + 1) tic end in
-    update_slice _T min max _Ti) _T in
-  slice _T 0 len
+        create p.size_hash (u8 i) end in
+//        HMAC.hmac p len_prk prk (p.size_hash + len_info + 1) tic end in
+    update_slice t min max _Ti) _T in
+
+    (slice _T 0 (3 * p.size_hash))
+//  slice _T 0 len
