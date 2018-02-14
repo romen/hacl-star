@@ -12,7 +12,11 @@ val u8_from_UInt8: (n:FStar.UInt8.t) -> u:uint8{uint_v #U8 u = UInt8.v n}
 inline_for_extraction
 val u16_from_UInt16: (n:FStar.UInt16.t) -> u:uint16{uint_v #U16 u = UInt16.v n}
 inline_for_extraction
+val u24_from_UInt32: (n:FStar.UInt32.t) -> u:uint24{uint_v #U24 u = UInt32.v n}
+inline_for_extraction
 val u32_from_UInt32: (n:FStar.UInt32.t) -> u:uint32{uint_v #U32 u = UInt32.v n}
+inline_for_extraction
+val u48_from_UInt64: (n:FStar.UInt64.t) -> u:uint48{uint_v #U48 u = UInt64.v n}
 inline_for_extraction
 val u64_from_UInt64: (n:FStar.UInt64.t) -> u:uint64{uint_v #U64 u = UInt64.v n}
 inline_for_extraction
@@ -25,7 +29,11 @@ val u8_to_UInt8: (u:uint8) -> n:UInt8.t{uint_v #U8 u = UInt8.v n}
 inline_for_extraction
 val u16_to_UInt16: (u:uint16) -> n:UInt16.t{uint_v #U16 u = UInt16.v n}
 inline_for_extraction
+val u24_to_UInt32: (u:uint24) -> n:UInt32.t{uint_v #U24 u = UInt32.v n}
+inline_for_extraction
 val u32_to_UInt32: (u:uint32) -> n:UInt32.t{uint_v #U32 u = UInt32.v n}
+inline_for_extraction
+val u48_to_UInt64: (u:uint48) -> n:UInt64.t{uint_v #U48 u = UInt64.v n}
 inline_for_extraction
 val u64_to_UInt64: (u:uint64) -> n:UInt64.t{uint_v #U64 u = UInt64.v n}
 inline_for_extraction

@@ -58,7 +58,6 @@ val nat_to_bytes_le:
 
 
 val uint_to_bytes_le: #t:inttype -> u:uint_t t -> intseq U8 (numbytes t)
-
 val uint_to_bytes_be: #t:inttype -> u:uint_t t -> intseq U8 (numbytes t)
 
 val uint_from_bytes_le: #t:inttype -> intseq U8 (numbytes t) -> u:uint_t t
@@ -73,9 +72,9 @@ val uints_from_bytes_be: #t:inttype -> #len:size_nat{len `op_Multiply` numbytes 
 val as_list: #a:Type -> #len:size_nat -> lseq a len -> l:list a{List.Tot.length l = len}
 
 (*
-val map_block: #a:Type -> #b:Type -> n:size_nat -> 
-		blocksize:size_nat{n `op_Multiply` blocksize <= max_size_t} -> 
-		(i:size_nat{i < n} -> lseq a blocksize -> lseq b blocksize) -> 
-		lseq a (n `op_Multiply` blocksize) -> 
+val map_block: #a:Type -> #b:Type -> n:size_nat ->
+		blocksize:size_nat{n `op_Multiply` blocksize <= max_size_t} ->
+		(i:size_nat{i < n} -> lseq a blocksize -> lseq b blocksize) ->
+		lseq a (n `op_Multiply` blocksize) ->
 		Tot (lseq b (n `op_Multiply` blocksize))
 *)

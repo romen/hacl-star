@@ -274,14 +274,14 @@ let as_list #a #len l = l
 
 (*
 val map_block_: #a:Type -> #b:Type -> min:size_nat -> max:size_nat{min <= max} ->
-		blocksize:size_nat{max * blocksize <= max_size_t} -> 
-		(i:size_nat{i >= min /\ i < max} -> lseq a blocksize -> lseq b blocksize) -> 
-		lseq a ((max - min) * blocksize) -> 
+		blocksize:size_nat{max * blocksize <= max_size_t} ->
+		(i:size_nat{i >= min /\ i < max} -> lseq a blocksize -> lseq b blocksize) ->
+		lseq a ((max - min) * blocksize) ->
 		Tot (lseq b ((max - min) * blocksize)) (decreases (max - min))
 let rec map_block_ #a #b min max sz f x =
   if min = max then []
-  else 
-    let h = slice x 0 sz in 
+  else
+    let h = slice x 0 sz in
     let t = slice x sz ((max - min) * sz) in
     let h' = f min h in
     let t' = map_block_ #a #b (min+1) max sz f t in

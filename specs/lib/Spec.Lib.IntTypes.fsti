@@ -4,7 +4,7 @@ open FStar.Math.Lemmas
 
 
 type inttype =
- | U8 | U16 | U32 | U64 | U128 | SIZE
+ | U8 | U16 | U24 |  U32 | U48 | U64 | U128 | SIZE
 
 inline_for_extraction
 unfold
@@ -12,7 +12,9 @@ let bits (n:inttype) =
   match n with
   | U8 -> 8
   | U16 -> 16
+  | U24 -> 24
   | U32 -> 32
+  | U48 -> 48
   | U64 -> 64
   | U128 -> 128
   | SIZE -> 32
@@ -23,7 +25,9 @@ let numbytes (n:inttype) =
   match n with
   | U8 -> 1
   | U16 -> 2
+  | U24 -> 3
   | U32 -> 4
+  | U48 -> 6
   | U64 -> 8
   | U128 -> 16
   | SIZE -> 4
@@ -32,7 +36,9 @@ val pow2_values: n:nat ->  Lemma (
     pow2 0 == 1 /\
     pow2 8 == 0x100 /\
     pow2 16 == 0x10000 /\
+    pow2 24 == 0x1000000 /\
     pow2 32 == 0x100000000 /\
+    pow2 48 == 0x1000000000000 /\
     pow2 64 == 0x10000000000000000 /\
     pow2 128 == 0x100000000000000000000000000000000
     )
@@ -61,7 +67,11 @@ type uint8 = uint_t U8
 inline_for_extraction
 type uint16 = uint_t U16
 inline_for_extraction
+type uint24 = uint_t U24
+inline_for_extraction
 type uint32 = uint_t U32
+inline_for_extraction
+type uint48 = uint_t U48
 inline_for_extraction
 type uint64 = uint_t U64
 inline_for_extraction
@@ -69,11 +79,18 @@ type uint128 = uint_t U128
 
 inline_for_extraction
 val u8: (n:nat{n <= maxint U8}) -> u:uint8{uint_v #U8 u == n}
+
 inline_for_extraction
 val u16: (n:nat{n <= maxint U16}) -> u:uint16{uint_v #U16 u == n}
 
 inline_for_extraction
+val u24: (n:nat{n <= maxint U24}) -> u:uint24{uint_v #U24 u == n}
+
+inline_for_extraction
 val u32: (n:nat{n <= maxint U32}) -> u:uint32{uint_v #U32 u == n}
+
+inline_for_extraction
+val u48: (n:nat{n <= maxint U48}) -> u:uint48{uint_v #U48 u == n}
 
 inline_for_extraction
 val u64: (n:nat{n <= maxint U64}) -> u:uint64{uint_v #U64 u == n}
@@ -92,7 +109,11 @@ let to_u8 #t u : uint8 = cast #t U8 u
 inline_for_extraction
 let to_u16 #t u : uint16 = cast #t U16 u
 inline_for_extraction
+let to_u24 #t u : uint24 = cast #t U24 u
+inline_for_extraction
 let to_u32 #t u : uint32 = cast #t U32 u
+inline_for_extraction
+let to_u48 #t u : uint48 = cast #t U48 u
 inline_for_extraction
 let to_u64 #t u : uint64 = cast #t U64 u
 inline_for_extraction
@@ -186,32 +207,32 @@ val lt_mask:  #t:inttype -> a:uint_t t  -> b:uint_t t -> c:uint_t t
 inline_for_extraction
 val lte_mask:  #t:inttype -> a:uint_t t  -> b:uint_t t -> uint_t t
 
-val eq_mask_lemma: #t:inttype -> a:uint_t t -> b:uint_t t -> d:uint_t t -> Lemma 
+val eq_mask_lemma: #t:inttype -> a:uint_t t -> b:uint_t t -> d:uint_t t -> Lemma
     (requires (True))
     (ensures  ((eq_mask #t a b) `logand` d == (if uint_v a = uint_v b then d else nat_to_uint 0)))
     [SMTPat (eq_mask #t a b `logand` d)]
 
-val neq_mask_lemma: #t:inttype -> a:uint_t t -> b:uint_t t -> d:uint_t t -> Lemma 
+val neq_mask_lemma: #t:inttype -> a:uint_t t -> b:uint_t t -> d:uint_t t -> Lemma
     (requires (True))
     (ensures  ((neq_mask #t a b) `logand` d == (if uint_v a <> uint_v b then d else nat_to_uint 0)))
     [SMTPat (neq_mask #t a b `logand` d)]
 
-val gt_mask_lemma: #t:inttype -> a:uint_t t -> b:uint_t t -> d:uint_t t -> Lemma 
+val gt_mask_lemma: #t:inttype -> a:uint_t t -> b:uint_t t -> d:uint_t t -> Lemma
     (requires (True))
     (ensures  ((gt_mask #t a b) `logand` d == (if uint_v a > uint_v b then d else nat_to_uint 0)))
     [SMTPat (gt_mask #t a b `logand` d)]
 
-val gte_mask_lemma: #t:inttype -> a:uint_t t -> b:uint_t t -> d:uint_t t -> Lemma 
+val gte_mask_lemma: #t:inttype -> a:uint_t t -> b:uint_t t -> d:uint_t t -> Lemma
     (requires (True))
     (ensures  ((gte_mask #t a b) `logand` d == (if uint_v a >= uint_v b then d else nat_to_uint 0)))
     [SMTPat (gte_mask #t a b `logand` d)]
 
-val lt_mask_lemma: #t:inttype -> a:uint_t t -> b:uint_t t -> d:uint_t t -> Lemma 
+val lt_mask_lemma: #t:inttype -> a:uint_t t -> b:uint_t t -> d:uint_t t -> Lemma
     (requires (True))
     (ensures  ((lt_mask #t a b) `logand` d == (if uint_v a  < uint_v b then d else nat_to_uint 0)))
     [SMTPat (lt_mask #t a b `logand` d)]
 
-val lte_mask_lemma: #t:inttype -> a:uint_t t -> b:uint_t t -> d:uint_t t -> Lemma 
+val lte_mask_lemma: #t:inttype -> a:uint_t t -> b:uint_t t -> d:uint_t t -> Lemma
     (requires (True))
     (ensures  ((lte_mask #t a b) `logand` d == (if uint_v a  <= uint_v b then d else nat_to_uint 0)))
     [SMTPat (lte_mask #t a b `logand` d)]
@@ -332,7 +353,7 @@ inline_for_extraction
 val bn_div: bignum -> b:bignum{bn_v b <> 0} -> bignum
 
 (*
-val uint_v_lemma: #t:inttype -> a:uint_t t -> b:uint_t t -> Lemma 
+val uint_v_lemma: #t:inttype -> a:uint_t t -> b:uint_t t -> Lemma
     (requires (uint_v #t a == uint_v #t b))
     (ensures (a == b))
     [SMTPat (uint_v #t a); SMTPat (uint_v #t b)]
