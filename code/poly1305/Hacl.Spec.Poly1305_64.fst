@@ -111,7 +111,7 @@ let bignum_to_128 s =
   UInt.logor_disjoint (v (h2 <<^ 24ul)) (v (h1 >>^ 20ul)) 24;
   cut (v acch = (v h2 * (pow2 24)) % pow2 64 + v h1 / pow2 20);
   Math.Lemmas.multiple_modulo_lemma (v acch) (pow2 64);
-  let open Hacl.Bignum.Wide in  
+  let open Hacl.Bignum.Wide in
   let acc' = (limb_to_wide acch <<^ 64ul) |^ limb_to_wide accl in
   UInt.logor_disjoint #128 (v (limb_to_wide acch <<^ 64ul)) (v (limb_to_wide accl)) 64;
   lemma_bignum_to_128 h0 h1 h2;
@@ -359,7 +359,7 @@ let poly1305_update_spec st m =
 
 private val lemma_append_one_to_zeros_: unit -> Lemma
   (hlittle_endian (Seq.create 1 (uint8_to_sint8 1uy)) = 1)
-private let lemma_append_one_to_zeros_ () = 
+private let lemma_append_one_to_zeros_ () =
   little_endian_singleton (1uy)
 
 
@@ -717,7 +717,7 @@ val poly1305_finish_spec':
   key_s:word_16{Seq.length key_s = 16} ->
   GTot (mac:word_16{
     let acc = seval acc in
-    let k   = hlittle_endian key_s in    
+    let k   = hlittle_endian key_s in
     hlittle_endian mac == (acc + k) % pow2 128})
 let poly1305_finish_spec' acc key_s =
   let k' = load128_le_spec key_s in
