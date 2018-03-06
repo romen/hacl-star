@@ -2,6 +2,7 @@
 #include "kremlib.h"
 #include "Hacl_Curve25519.h"
 #include "Hacl_Chacha20.h"
+#include "Hacl_Chacha20_Vec128.h"
 #include "Hacl_Salsa20.h"
 #define Hacl_Impl_Poly1305_64_State_poly1305_state Hacl_Impl_Poly1305_64_State_poly1305_state_poly
 #include "Hacl_Poly1305_64.h"
@@ -37,6 +38,18 @@ chacha20(
          uint32_t ctr
          ){
   Hacl_Chacha20_chacha20(output, plain, plain_len, key, nonce, ctr);
+}
+
+void
+chacha20_vec128(
+         uint8_t *output,
+         uint8_t *plain,
+         uint32_t plain_len,
+         uint8_t *key,
+         uint8_t *nonce,
+         uint32_t ctr
+         ){
+  Hacl_Chacha20_Vec128_chacha20(output, plain, plain_len, key, nonce, ctr);
 }
 
 void

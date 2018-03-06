@@ -6,15 +6,17 @@ LIBSODIUM_HOME ?= $(HACL_HOME)/other_providers/libsodium/src/libsodium
 
 # Default snapshot. Variable can be overwritten to choose a snapshot
 SNAPSHOT_DIR = snapshots/hacl-c
+KREMLIB= $(HACL_HOME)/snapshots/kremlib
 
 #
 # Compiler and settings
 #
 
-CC=gcc
-KREMLIB= $(HACL_HOME)/snapshots/kremlib
-
+#CC=clang
+CC=gcc-7
 CCOPTS = -Ofast -march=native -mtune=native -m64 -fwrapv -fomit-frame-pointer -funroll-loops --param max-unroll-times=20
+#CCOPTS = -Ofast -march=armv8-a+crc -mtune=cortex-a53 -mfpu=neon-fp-armv8 -fwrapv -fomit-frame-pointer -funroll-loops
+
 CFLAGS = $(CCOPTS) -I $(OPENSSL_HOME) -I $(OPENSSL_HOME)/include -I $(OPENSSL_HOME)/crypto/ec \
 	-I $(OPENSSL_HOME)/crypto/include -I $(OPENSSL_HOME)/crypto/poly1305 \
 	-I $(LIBSODIUM_HOME)/include -L$(LIBSODIUM_HOME)/lib \

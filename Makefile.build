@@ -82,7 +82,7 @@ snapshots/snapshot-gcc-unrolled: clean-c-code
 	$(MAKE) -B snapshot-collect SNAPSHOT_DIR=snapshots/snapshot-gcc-unrolled
 
 #
-# Production targets
+# Production targets for C code
 #
 
 HACL_RELEASE=1
@@ -131,6 +131,7 @@ snapshots/nss: snapshots-remove-intermediates
 	cp snapshots/snapshot-gcc/Hacl_Chacha20.* snapshots/nss
 	cp snapshots/snapshot-gcc/Hacl_Chacha20_Vec128.* snapshots/nss
 	cp snapshots/snapshot-gcc/Hacl_Poly1305_64.* snapshots/nss
+	cp snapshots/snapshot-gcc/Hacl_Poly1305_32.* snapshots/nss
 	$(MAKE) snapshots/nss/kremlib
 	$(MAKE) snapshots/nss/specs
 
@@ -140,6 +141,54 @@ snapshots/wireguard: snapshots-remove-intermediates
 	mkdir -p snapshots/wireguard
 	cp snapshots/snapshot-gcc-unrolled/Hacl_Curve25519.* snapshots/wireguard
 	$(MAKE) snapshots/wireguard/kremlib
+
+#
+# Production target for Web Assembly
+#
+
+# Emscripten exported functions
+define WASM_EXPORTED_FUNCTIONS
+"_Hacl_Chacha20_chacha20", "_Hacl_Chacha20_chacha20_key_block", \
+"_AEAD_Poly1305_64_mk_state", "_AEAD_Poly1305_64_mul_div_16", "_AEAD_Poly1305_64_pad_last", \
+"_AEAD_Poly1305_64_poly1305_blocks_init", "_AEAD_Poly1305_64_poly1305_blocks_continue", \
+"_AEAD_Poly1305_64_poly1305_blocks_finish_", "_AEAD_Poly1305_64_poly1305_blocks_finish", \
+"_Hacl_Chacha20Poly1305_encode_length", "_Hacl_Chacha20Poly1305_aead_encrypt_", \
+"_Hacl_Chacha20Poly1305_aead_encrypt", "_Hacl_Chacha20Poly1305_aead_decrypt", \
+"_Hacl_Chacha20_Vec128_chacha20", "_Hacl_Curve25519_crypto_scalarmult", \
+"_Hacl_Ed25519_sign", "_Hacl_Ed25519_verify", "_Hacl_Ed25519_secret_to_public", \
+"_Hacl_HMAC_SHA2_256_hmac_core", "_Hacl_HMAC_SHA2_256_hmac", "_Hacl_Policies_declassify_u8", "_Hacl_Policies_declassify_u32", \
+"_Hacl_Policies_declassify_u64", "_Hacl_Policies_declassify_u128", "_Hacl_Policies_cmp_bytes_", \
+"_Hacl_Policies_cmp_bytes", "_Hacl_Poly1305_32_mk_state", "_Hacl_Poly1305_32_init", \
+"_Hacl_Poly1305_32_update_block", "_Hacl_Poly1305_32_update", "_Hacl_Poly1305_32_update_last", \
+"_Hacl_Poly1305_32_finish", "_Hacl_Poly1305_32_crypto_onetimeauth",  "_Hacl_Poly1305_64_mk_state", \
+"_Hacl_Poly1305_64_init", "_Hacl_Poly1305_64_update_block", "_Hacl_Poly1305_64_update", \
+"_Hacl_Poly1305_64_update_last", "_Hacl_Poly1305_64_finish", "_Hacl_Poly1305_64_crypto_onetimeauth", \
+"_Hacl_Salsa20_salsa20", "_Hacl_Salsa20_hsalsa20", "_Hacl_SHA2_256_init", "_Hacl_SHA2_256_update", \
+"_Hacl_SHA2_256_update_multi", "_Hacl_SHA2_256_update_last", "_Hacl_SHA2_256_finish", \
+"_Hacl_SHA2_256_hash", "_Hacl_SHA2_384_init", "_Hacl_SHA2_384_update", \
+"_Hacl_SHA2_384_update_multi", "_Hacl_SHA2_384_update_last", "_Hacl_SHA2_384_finish", \
+"_Hacl_SHA2_384_hash", "_Hacl_SHA2_512_init", "_Hacl_SHA2_512_update", \
+"_Hacl_SHA2_512_update_multi", "_Hacl_SHA2_512_update_last", "_Hacl_SHA2_512_finish", \
+"_Hacl_SHA2_512_hash", "_NaCl_crypto_secretbox_detached", "_NaCl_crypto_secretbox_open_detached", \
+"_NaCl_crypto_secretbox_easy", "_NaCl_crypto_secretbox_open_easy", "_NaCl_crypto_box_beforenm", \
+"_NaCl_crypto_box_detached_afternm", "NaCl_crypto_box_detached", "_NaCl_crypto_box_open_detached", \
+"_NaCl_crypto_box_easy_afternm", "_NaCl_crypto_box_easy", "_NaCl_crypto_box_open_easy", \
+"_NaCl_crypto_box_open_detached_afternm", "_NaCl_crypto_box_open_easy_afternm", \
+"_malloc", "_free"
+endef
+
+snapshots/hacl-c-wasm: snapshots-remove-intermediates
+	$(MAKE) snapshots/hacl-c
+	rm -rf snapshots/hacl-c-wasm
+	mkdir -p snapshots/hacl-c-wasm/build
+	cp $(SNAPSHOT_HACL_C_FILES) snapshots/hacl-c-wasm/build
+	emcc -O3 -DKRML_NOUINT128 -Wno-implicit-function-declaration \
+			-Wno-bitwise-op-parentheses -Wno-shift-op-parentheses \
+			-s WASM=1 -s MODULARIZE=1 -s 'EXPORT_NAME="HaclLoader"'  \
+			-o snapshots/hacl-c-wasm/HaclLoader.js \
+			-s EXPORTED_FUNCTIONS='[$(WASM_EXPORTED_FUNCTIONS)]' \
+			-I snapshots/hacl-c-wasm/build snapshots/hacl-c-wasm/build/*.c
+	rm -rf snapshots/hacl-c-wasm/build
 
 #
 # Build, refresh and clean targets for all snapshots
@@ -165,7 +214,6 @@ snapshots-remove-production:
 #
 # Building the shared library
 #
-
 
 snapshots/hacl-c/libhacl.so:
 	$(MAKE) -C snapshots/hacl-c libhacl.so
