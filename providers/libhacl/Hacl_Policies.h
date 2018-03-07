@@ -1,6 +1,6 @@
 /* MIT License
  *
- * Copyright (c) 2016-2018 INRIA and Microsoft Corporation
+ * Copyright (c) 2016-2017 INRIA and Microsoft Corporation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,19 +21,23 @@
  * SOFTWARE.
  */
 
-#ifndef __HACL_H
-#define __HACL_H
+#include "kremlib.h"
+#ifndef __Hacl_Policies_H
+#define __Hacl_Policies_H
 
-#include "Hacl_Chacha20.h"
-#include "Hacl_Chacha20_Vec128.h"
-#include "Hacl_Curve25519.h"
-#include "Hacl_Ed25519.h"
-#include "Hacl_HMAC_SHA2_256.h"
-#include "Hacl_Salsa20.h"
-#include "Hacl_SHA2_256.h"
-#include "Hacl_SHA2_384.h"
-#include "Hacl_SHA2_512.h"
-#include "Hacl_Policies.h"
-#include "Hacl_Poly1305_32.h"
-#include "Hacl_Poly1305_64.h"
+
+
+
+
+uint8_t Hacl_Policies_declassify_u8(uint8_t x);
+
+uint32_t Hacl_Policies_declassify_u32(uint32_t x);
+
+uint64_t Hacl_Policies_declassify_u64(uint64_t x);
+
+FStar_UInt128_t Hacl_Policies_declassify_u128(FStar_UInt128_t x);
+
+uint8_t Hacl_Policies_cmp_bytes_(uint8_t *b1, uint8_t *b2, uint32_t len, uint8_t *tmp);
+
+uint8_t Hacl_Policies_cmp_bytes(uint8_t *b1, uint8_t *b2, uint32_t len);
 #endif
