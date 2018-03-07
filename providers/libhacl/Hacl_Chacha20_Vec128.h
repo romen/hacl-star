@@ -1,6 +1,6 @@
 /* MIT License
  *
- * Copyright (c) 2016-2018 INRIA and Microsoft Corporation
+ * Copyright (c) 2016-2017 INRIA and Microsoft Corporation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,19 +21,53 @@
  * SOFTWARE.
  */
 
-#ifndef __HACL_H
-#define __HACL_H
+#include "kremlib.h"
+#ifndef __Hacl_Chacha20_Vec128_H
+#define __Hacl_Chacha20_Vec128_H
 
-#include "Hacl_Chacha20.h"
-#include "Hacl_Chacha20_Vec128.h"
-#include "Hacl_Curve25519.h"
-#include "Hacl_Ed25519.h"
-#include "Hacl_HMAC_SHA2_256.h"
-#include "Hacl_Salsa20.h"
-#include "Hacl_SHA2_256.h"
-#include "Hacl_SHA2_384.h"
-#include "Hacl_SHA2_512.h"
-#include "Hacl_Policies.h"
-#include "Hacl_Poly1305_32.h"
-#include "Hacl_Poly1305_64.h"
+
+
+#include "vec128.h"
+
+typedef uint32_t Hacl_Impl_Xor_Lemmas_u32;
+
+typedef uint8_t Hacl_Impl_Xor_Lemmas_u8;
+
+typedef uint32_t Hacl_Impl_Chacha20_Vec128_State_u32;
+
+typedef uint32_t Hacl_Impl_Chacha20_Vec128_State_h32;
+
+typedef uint8_t *Hacl_Impl_Chacha20_Vec128_State_uint8_p;
+
+typedef vec *Hacl_Impl_Chacha20_Vec128_State_state;
+
+typedef uint32_t Hacl_Impl_Chacha20_Vec128_u32;
+
+typedef uint32_t Hacl_Impl_Chacha20_Vec128_h32;
+
+typedef uint8_t *Hacl_Impl_Chacha20_Vec128_uint8_p;
+
+typedef uint32_t Hacl_Impl_Chacha20_Vec128_idx;
+
+typedef struct 
+{
+  void *k;
+  void *n;
+  uint32_t ctr;
+}
+Hacl_Impl_Chacha20_Vec128_log_t_;
+
+typedef void *Hacl_Impl_Chacha20_Vec128_log_t;
+
+typedef uint8_t *Hacl_Chacha20_Vec128_uint8_p;
+
+void
+Hacl_Chacha20_Vec128_chacha20(
+  uint8_t *output,
+  uint8_t *plain,
+  uint32_t len,
+  uint8_t *k,
+  uint8_t *n1,
+  uint32_t ctr
+);
 #endif
