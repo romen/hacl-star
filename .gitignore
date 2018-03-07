@@ -1,5 +1,7 @@
 *.o
+*.a
 *.so
+*.dylib
 *.exe
 *.exe.dSYM
 out.krml
