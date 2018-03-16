@@ -2,14 +2,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "Vale_AES.h"
+
 #ifdef _WIN32
 #define STDCALL __attribute__((stdcall))
 #else
 #define STDCALL
 #endif
-
-extern void STDCALL KeyExpansionStdcall(const void *key_ptr, void *expanded_key_ptr, void *placeholder);
-extern void STDCALL AES128EncryptOneBlockStdcall(void *output_ptr, const void *input_ptr, const void *expanded_key_ptr, void *placeholder);
 
 void Vale_AES_keyExpansion(uint8_t *k, uint8_t *w, uint8_t *sb)
 {

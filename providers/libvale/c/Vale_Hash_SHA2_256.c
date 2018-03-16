@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <inttypes.h>
 
-// From Vale's build tree:
 #include "sha256_main_i.h"
 
 #define SHA256_BLOCK_SIZE_B 64
