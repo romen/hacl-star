@@ -30,7 +30,7 @@ libvale:
 libeverest: libhacl libvale
 	mkdir -p everest_crypto/build
 	cp libhacl/libhacl.a everest_crypto/build
-	cp libvale/vale.a everest_crypto/build/libvale.a
+	cp libvale/libvale.a everest_crypto/build
 	cd everest_crypto/build && \
 	gar -x libhacl.a && \
 	gar -x libvale.a && \
