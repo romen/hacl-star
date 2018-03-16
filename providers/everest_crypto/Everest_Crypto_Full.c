@@ -63,8 +63,8 @@ void hacl_chacha20(uint8_t* output, uint8_t* plain, uint32_t len, uint8_t* key, 
 
 void hacl_poly1305_64(uint8_t *output, uint8_t *input, uint64_t len, uint8_t *key)
   Hacl_Poly1305_64_crypto_onetimeauth(output, input, len, key);
-)
+}
 
 void vale_poly1305_64(uint8_t *output, uint8_t *input, uint64_t len, uint8_t *key)
   Hacl_Poly1305_64_crypto_onetimeauth(output, input, len, key);
-)
+}
