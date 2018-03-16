@@ -22,7 +22,7 @@
  */
 
 #include "stdint.h"
-#include "Everest_Crypto.h"
+#include "Everest_Crypto_Full.h"
 #include "Hacl_Curve25519.h"
 #include "Hacl_Chacha20.h"
 #include "Hacl_Poly1305_64.h"
