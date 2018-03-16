@@ -39,3 +39,35 @@ val vale_cipher:
   sb:uint8_p -> Stack unit
   (requires (fun h -> live h out /\ live h input /\ live h w /\ live h sb))
   (ensures (fun h0 _ h1 -> live h1 out /\ modifies_1 out h0 h1))
+
+///
+/// SHA2_256
+///
+
+val init:
+  state:uint32_p ->
+  Stack unit
+    (requires (fun h -> live h state))
+    (ensures  (fun h0 r h1 -> live h1 state /\ modifies_1 state h0 h1))
+
+val update:
+  state :uint32_p ->
+  data  :uint8_p ->
+  Stack unit
+        (requires (fun h -> live h state /\ live h data))
+        (ensures  (fun h0 r h1 -> live h1 state /\ live h1 data /\ modifies_1 state h0 h1))
+
+val update_last:
+  state :uint32_p ->
+  data  :uint8_p ->
+  len   :uint32 ->
+  Stack unit
+        (requires (fun h -> live h state /\ live h data))
+        (ensures  (fun h0 r h1 -> live h1 state /\ live h1 data /\ modifies_1 state h0 h1))
+
+val finish:
+  state :uint32_p ->
+  hash  :uint8_p ->
+  Stack unit
+        (requires (fun h -> live h state /\ live h hash))
+        (ensures  (fun h0 r h1 -> live h1 state /\ live h1 hash /\ modifies_2 state hash h0 h1))
