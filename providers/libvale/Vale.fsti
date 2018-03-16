@@ -1,4 +1,4 @@
-module Vale.Crypto.Full
+module Vale
 
 open FStar.HyperStack.All
 open FStar.Buffer
