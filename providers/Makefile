@@ -1,6 +1,6 @@
 .PHONY: libvale
 
-all: libhacl libvale
+all: libeverest
 
 HACL_HEADERS= $(addprefix $(HACL_HOME)/snapshots/hacl-c/, \
 	Hacl_Chacha20.h \
