@@ -1,4 +1,4 @@
-.PHONY: libvale
+.PHONY: libhacl libvale
 
 all: libeverest
 
