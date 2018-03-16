@@ -623,21 +623,21 @@ val vale_poly1305_64:
 //       h1.[out] == Spec.Ed25519.secret_to_public h0.[secret]))
 
 
-// ///
-// /// AES
-// ///
+///
+/// AES
+///
 
-// val vale_keyExpansion:
-//   key:buffer u8 ->
-//   w:buffer u8 ->
-//   sb:buffer u8 -> STL unit
-//   (requires (fun h -> live h key /\ live h w /\ live h sb))
-//   (ensures (fun h0 _ h1 -> modifies_1 w h0 h1))
+val vale_keyExpansion:
+  key:uint8_p ->
+  w:uint8_p ->
+  sb:uint8_p -> Stack unit
+  (requires (fun h -> live h key /\ live h w /\ live h sb))
+  (ensures (fun h0 _ h1 -> modifies_1 w h0 h1))
 
-// val vale_cipher:
-//   out:buffer u8 ->
-//   input:buffer u8 ->
-//   w:buffer u8 ->
-//   sb:buffer u8 -> STL unit
-//   (requires (fun h -> live h out /\ live h input /\ live h w /\ live h sb))
-//   (ensures (fun h0 _ h1 -> live h1 out /\ modifies_1 out h0 h1))
+val vale_cipher:
+  out:uint8_p ->
+  input:uint8_p ->
+  w:uint8_p ->
+  sb:uint8_p -> Stack unit
+  (requires (fun h -> live h out /\ live h input /\ live h w /\ live h sb))
+  (ensures (fun h0 _ h1 -> live h1 out /\ modifies_1 out h0 h1))
