@@ -78,3 +78,4 @@ void crypto_vale_aes_keyExpansion(uint8_t *k, uint8_t *w, uint8_t *sb);
 
 void crypto_vale_aes_cipher(uint8_t *out, uint8_t *in, uint8_t *w, uint8_t *sb);
 
+#endif
