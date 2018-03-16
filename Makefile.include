@@ -19,13 +19,21 @@ else
   KREMLIN_HOME:=$(abspath $(KREMLIN_HOME))
 endif
 
+ifndef VALE_HOME
+  VALE_HOME:=$(abspath $(HACL_HOME)/dependencies/vale)
+else
+  VALE_HOME:=$(abspath $(VALE_HOME))
+endif
+
 export HACL_HOME
 export FSTAR_HOME
 export KREMLIN_HOME
+export VALE_HOME
 
 # $(info $(HACL_HOME))
 # $(info $(FSTAR_HOME))
 # $(info $(KREMLIN_HOME))
+# $(info $(VALE_HOME))
 
 HACL_LIB=$(HACL_HOME)/code/lib
 HACL_FILES=Hacl.UInt8.fst Hacl.UInt16.fst Hacl.UInt32.fst Hacl.UInt64.fst Hacl.UInt128.fst Hacl.Cast.fst Hacl.Types.fst Hacl.Policies.fst
