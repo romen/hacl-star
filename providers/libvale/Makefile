@@ -40,12 +40,12 @@ CCOPTS=$(FPIC) -Wall -Wextra -Werror -I $(KREMLIN_HOME)/kremlib
 CC:=$(CC) $(CCOPTS)
 
 
-all: vale.a
+all: libvale.a
 
 ALL_OBJ= asm/sha256-$(MARCH)$(VARIANT).o c/sha256_main_i.o c/Vale_Hash_SHA2_256.o \
-	asm/aes-$(MARCH)$(VARIANT).o c/vale_aes_glue.o
+	asm/aes-$(MARCH)$(VARIANT).o c/Vale_AES.o
 
-vale.a: $(ALL_OBJ)
+libvale.a: $(ALL_OBJ)
 	ar -cr $@ $^
 
 %.o: %.S
