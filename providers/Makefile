@@ -1,3 +1,5 @@
+include ../Makefile.include
+
 .PHONY: libhacl libvale
 
 all: libeverest
@@ -27,17 +29,19 @@ libhacl:
 libvale:
 	$(MAKE) -C libvale
 
-libeverest: libhacl libvale
-	mkdir -p everest_crypto/build
-	cp libhacl/libhacl.a everest_crypto/build
-	cp libvale/libvale.a everest_crypto/build
-	cd everest_crypto/build && \
+libeverestcrypto: libhacl libvale
+	mkdir -p libeverestcrypto/build
+	cp libhacl/libhacl.a libeverestcrypto/build
+	cp libvale/libvale.a libeverestcrypto/build
+	$(CC) -c libeverestcrypto/c/Everest_Crypto_Full.c -I libhacl -I libvale/c -I $(KREMLIN_HOME)/kremlib \
+		-o libeverestcrypto/build/Everest_Crypto_Full.o
+	cd libeverestcrypto/build && \
 	gar -x libhacl.a && \
 	gar -x libvale.a && \
 	gar -qc libeverest.a  *.o
-	cp everest_crypto/build/libeverest.a everest_crypto
-	rm -rf everest_crypto/build
+	cp libeverestcrypto/build/libeverest.a libeverestcrypto
+	rm -rf libeverestcrypto/build
 
 clean:
 	$(MAKE) clean -C libvale
-	rm -rf *~ everest_crypto/*.a
+	rm -rf *~ libeverestcrypto/*.a

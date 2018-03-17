@@ -21,7 +21,7 @@
  * SOFTWARE.
  *)
 
-module Everest.Crypto.Full
+module Everest.Crypto
 
 open FStar.HyperStack.All
 open FStar.Buffer
