@@ -22,8 +22,8 @@
  */
 
 #include "stdint.h"
-#ifndef __Everest_Crypto_H
-#define __Everest_Crypto_H
+#ifndef __Everest_Crypto_Full_H
+#define __Everest_Crypto_Full_H
 
 
 typedef uint8_t* hacl_chacha20_state;
