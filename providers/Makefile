@@ -2,7 +2,7 @@ include ../Makefile.include
 
 .PHONY: libhacl libvale
 
-all: libeverest
+all: libeverestcrypto
 
 HACL_HEADERS= $(addprefix $(HACL_HOME)/snapshots/hacl-c/, \
 	Hacl_Chacha20.h \
@@ -41,6 +41,10 @@ libeverestcrypto: libhacl libvale
 	gar -qc libeverest.a  *.o
 	cp libeverestcrypto/build/libeverest.a libeverestcrypto
 	rm -rf libeverestcrypto/build
+	@echo $(CYAN)"# Done ! Generated libraries can be found in: "$(NORMAL)
+	@echo $(CYAN)"# 'libhacl/' for the HACL* crypto provider"$(NORMAL)
+	@echo $(CYAN)"# 'libvale/' for the Vale crypto provider"$(NORMAL)
+	@echo $(CYAN)"# 'libeverestcrypto/' for the Everest_Crypto provider"$(NORMAL)
 
 clean:
 	$(MAKE) clean -C libvale
