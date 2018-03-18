@@ -25,15 +25,29 @@ else
   VALE_HOME:=$(abspath $(VALE_HOME))
 endif
 
+ifndef OPENSSL_HOME
+  OPENSSL_HOME:=$(abspath $(HACL_HOME)/dependencies/openssl)
+else
+  OPENSSL_HOME:=$(abspath $(OPENSSL_HOME))
+endif
+
+ifndef BORINGSSL_HOME
+  BORINGSSL_HOME:=$(abspath $(HACL_HOME)/dependencies/boringssl)
+else
+  BORINGSSL_HOME:=$(abspath $(BORINGSSL_HOME))
+endif
+
 export HACL_HOME
 export FSTAR_HOME
 export KREMLIN_HOME
 export VALE_HOME
+export OPENSSL_HOME
 
 # $(info $(HACL_HOME))
 # $(info $(FSTAR_HOME))
 # $(info $(KREMLIN_HOME))
 # $(info $(VALE_HOME))
+# $(info $(OPENSSL_HOME))
 
 HACL_LIB=$(HACL_HOME)/code/lib
 HACL_FILES=Hacl.UInt8.fst Hacl.UInt16.fst Hacl.UInt32.fst Hacl.UInt64.fst Hacl.UInt128.fst Hacl.Cast.fst Hacl.Types.fst Hacl.Policies.fst
