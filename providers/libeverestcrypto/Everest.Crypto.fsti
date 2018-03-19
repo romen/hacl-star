@@ -50,7 +50,7 @@ let op_Array_Access m b = as_seq m b
 
 val spec_curve25519_scalarmult: s:lbytes 32 -> b:lbytes 32 -> o:lbytes 32
 
-val hacl_curve25519_scalarmult:
+val everestcrypto_hacl_curve25519_scalarmult:
   mypublic :uint8_p{B.length mypublic = 32} ->
   secret   :uint8_p{B.length secret = 32} ->
   basepoint:uint8_p{B.length basepoint = 32} ->
@@ -62,14 +62,44 @@ val hacl_curve25519_scalarmult:
               /\ B.live h0 mypublic /\ B.live h0 secret /\ B.live h0 basepoint
               /\ h1.(mypublic) == spec_curve25519_scalarmult h0.(secret) h0.(basepoint)))
 
+val everestcrypto_openssl_curve25519_scalarmult:
+  mypublic :uint8_p{B.length mypublic = 32} ->
+  secret   :uint8_p{B.length secret = 32} ->
+  basepoint:uint8_p{B.length basepoint = 32} ->
+  Stack unit
+    (requires (fun h ->
+              B.live h mypublic /\ B.live h secret /\ B.live h basepoint))
+    (ensures  (fun h0 _ h1 ->
+              B.live h1 mypublic /\ B.modifies_1 mypublic h0 h1
+              /\ B.live h0 mypublic /\ B.live h0 secret /\ B.live h0 basepoint))
+
+///
+/// AES
+///
+
+val everestcrypto_vale_keyExpansion:
+  key:uint8_p ->
+  w:uint8_p ->
+  sb:uint8_p -> Stack unit
+  (requires (fun h -> live h key /\ live h w /\ live h sb))
+  (ensures (fun h0 _ h1 -> modifies_1 w h0 h1))
+
+val everestcrypto_vale_cipher:
+  out:uint8_p ->
+  input:uint8_p ->
+  w:uint8_p ->
+  sb:uint8_p -> Stack unit
+  (requires (fun h -> live h out /\ live h input /\ live h w /\ live h sb))
+  (ensures (fun h0 _ h1 -> live h1 out /\ modifies_1 out h0 h1))
+
 ///
 /// Chacha20
 ///
 
-let hacl_chacha20_state = b:B.buffer uint32{B.length b = 16}
+let everestcrypto_hacl_chacha20_state = b:B.buffer uint32{B.length b = 16}
 
-val hacl_chacha20_setup:
-  st:hacl_chacha20_state ->
+val everestcrypto_hacl_chacha20_setup:
+  st:everestcrypto_hacl_chacha20_state ->
   k:uint8_p{length k = 32 /\ B.disjoint st k} ->
   n:uint8_p{length n = 12 /\ B.disjoint st n} ->
   c:UInt32.t ->
@@ -77,18 +107,18 @@ val hacl_chacha20_setup:
     (requires (fun h -> live h st /\ live h k /\ live h n))
     (ensures (fun h0 _ h1 -> live h0 k /\ live h0 n /\ live h1 st /\ modifies_1 st h0 h1))
 
-val chacha20_stream:
+val everestcrypto_chacha20_stream:
   stream_block:uint8_p{length stream_block = 64} ->
-  st          :hacl_chacha20_state{disjoint st stream_block} ->
+  st          :everestcrypto_hacl_chacha20_state{disjoint st stream_block} ->
   Stack unit
     (requires (fun h -> live h stream_block /\ live h st))
     (ensures  (fun h0 _ h1 -> live h1 stream_block /\ live h0 st
       /\ live h1 st /\ live h0 stream_block /\ modifies_1 stream_block h0 h1))
 
-val chacha20_stream_finish:
+val everestcrypto_chacha20_stream_finish:
   stream_block:uint8_p ->
   len:uint32{UInt32.v len <= 64 /\ length stream_block = UInt32.v len} ->
-  st:hacl_chacha20_state{disjoint st stream_block} ->
+  st:everestcrypto_hacl_chacha20_state{disjoint st stream_block} ->
   Stack unit
     (requires (fun h -> live h stream_block /\ live h st))
     (ensures  (fun h0 _ h1 -> live h1 stream_block /\ live h0 st
@@ -142,7 +172,7 @@ val chacha20_stream_finish:
 
 val spec_chacha20_chacha20_encrypt_bytes : k:lbytes 32 -> n:lbytes 12 -> nat -> p:S.seq uint8 -> c:S.seq uint8{S.length p = S.length c}
 
-val hacl_chacha20:
+val everestcrypto_hacl_chacha20:
   output:uint8_p ->
   plain:uint8_p{disjoint output plain} ->
   len:uint32{UInt32.v len = length output /\ UInt32.v len = length plain} ->
@@ -161,7 +191,7 @@ val hacl_chacha20:
 
 val spec_poly1305_poly1305: i:S.seq uint8 -> k:S.seq uint8{S.length k = 32} -> m:S.seq uint8{S.length m = 16}
 
-val hacl_poly1305_64:
+val everestcrypto_hacl_poly1305_64:
   mac:uint8_p{length mac = 16} ->
   input:uint8_p{disjoint input mac} ->
   len:uint64{UInt64.v len < pow2 32 /\ UInt64.v len = length input} ->
@@ -171,7 +201,7 @@ val hacl_poly1305_64:
     (ensures  (fun h0 _ h1 -> live h1 mac /\ modifies_1 mac h0 h1 /\ live h0 input /\ live h0 key
       /\ h1.(mac) == spec_poly1305_poly1305 h0.(input) h0.(key)))
 
-val vale_poly1305_64:
+val everestcrypto_vale_poly1305_64:
   mac:uint8_p{length mac = 16} ->
   input:uint8_p{disjoint input mac} ->
   len:uint64{UInt64.v len < pow2 32 /\ UInt64.v len = length input} ->
@@ -180,16 +210,6 @@ val vale_poly1305_64:
     (requires (fun h -> live h mac /\ live h input /\ live h key))
     (ensures  (fun h0 _ h1 -> live h1 mac /\ modifies_1 mac h0 h1 /\ live h0 input /\ live h0 key))
      // /\ h1.(mac) == spec_poly1305_poly1305 h0.(input) h0.(key)))
-
-
-// void poly1305(struct poly1305_ctxt *ctx, const void *inp, uint64_t len);
-
-// int __cdecl Everest_Poly1305_Init(void *evpctx)
-
-// int __cdecl  Everest_Poly1305_Update(EVP_MD_CTX *evpctx, const void *data, size_t count)
-
-// int  __cdecl Everest_Poly1305_Final(EVP_MD_CTX *evpctx, unsigned char *md)
-
 
 // ///
 // /// Poly1305_32
@@ -644,23 +664,3 @@ val vale_poly1305_64:
 //     (requires (fun h -> live h out /\ live h secret))
 //     (ensures (fun h0 _ h1 -> live h0 out /\ live h0 secret /\ live h1 out /\ modifies_1 out h0 h1 /\
 //       h1.[out] == Spec.Ed25519.secret_to_public h0.[secret]))
-
-
-///
-/// AES
-///
-
-val vale_keyExpansion:
-  key:uint8_p ->
-  w:uint8_p ->
-  sb:uint8_p -> Stack unit
-  (requires (fun h -> live h key /\ live h w /\ live h sb))
-  (ensures (fun h0 _ h1 -> modifies_1 w h0 h1))
-
-val vale_cipher:
-  out:uint8_p ->
-  input:uint8_p ->
-  w:uint8_p ->
-  sb:uint8_p -> Stack unit
-  (requires (fun h -> live h out /\ live h input /\ live h w /\ live h sb))
-  (ensures (fun h0 _ h1 -> live h1 out /\ modifies_1 out h0 h1))

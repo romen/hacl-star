@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "Everest_Crypto_Full.h"
+#include "Everest_Crypto.h"
 
 int main() {
   uint8_t input[32] = {0};
@@ -18,7 +18,7 @@ int main() {
   }
   printf("\n");
 
-  crypto_openssl_curve25519_scalarmult(output, input, basepoint);
+  everestcrypto_openssl_curve25519_scalarmult(output, input, basepoint);
 
   printf("Result    = ");
   for (int i = 0; i < 32; i++) {
