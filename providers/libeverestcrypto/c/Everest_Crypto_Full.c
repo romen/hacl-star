@@ -28,6 +28,7 @@
 #include "Hacl_Poly1305_64.h"
 #include "Vale_AES.h"
 #include "Vale_Hash_SHA2_256.h"
+#include "openssl/curve25519.h"
 
 //
 // Curve25519
@@ -35,6 +36,10 @@
 
 void crypto_hacl_curve25519_scalarmult(uint8_t *mypublic, uint8_t *secret, uint8_t *basepoint) {
   Hacl_Curve25519_crypto_scalarmult(mypublic, secret, basepoint);
+}
+
+void crypto_openssl_curve25519_scalarmult(uint8_t *mypublic, uint8_t *secret, uint8_t *basepoint) {
+  X25519(mypublic, secret, basepoint);
 }
 
 //

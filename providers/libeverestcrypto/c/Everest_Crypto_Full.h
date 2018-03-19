@@ -35,6 +35,7 @@ typedef uint8_t* hacl_chacha20_state;
 //
 
 void crypto_hacl_curve25519_scalarmult(uint8_t *mypublic, uint8_t *secret, uint8_t *basepoint);
+void crypto_openssl_curve25519_scalarmult(uint8_t *mypublic, uint8_t *secret, uint8_t *basepoint);
 
 //
 // Chacha20

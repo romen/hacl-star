@@ -45,14 +45,17 @@ libeverestcrypto: libhacl libvale
 	mkdir -p libeverestcrypto/build
 	cp libhacl/libhacl.a libeverestcrypto/build
 	cp libvale/libvale.a libeverestcrypto/build
+	cp $(BORINGSSL_HOME)/build/crypto/libcrypto.a libeverestcrypto/build
 	$(CC) -c libeverestcrypto/c/Everest_Crypto_Full.c \
-		-I libhacl -I libvale/c -I $(KREMLIN_HOME)/kremlib \
+		-I libhacl -I libvale/c -I $(KREMLIN_HOME)/kremlib -I $(BORINGSSL_HOME)/include \
 		-o libeverestcrypto/build/Everest_Crypto_Full.o
 	cd libeverestcrypto/build && \
 	gar -x libhacl.a && \
 	gar -x libvale.a && \
-	gar -qc libeverest.a  *.o
-	cp libeverestcrypto/build/libeverest.a libeverestcrypto
+	gar -x libcrypto.a && \
+	gar -rcs libeverestcrypto.a *.o
+#	glibtool --mode=link --tag=CC gar --target=mach-o-x86-64 -o libeverestcrypto.a -static libhacl.a libvale.a libcrypto.a
+	cp libeverestcrypto/build/libeverestcrypto.a libeverestcrypto
 	rm -rf libeverestcrypto/build
 	@echo $(CYAN)"# Done ! Generated libraries can be found in: "$(NORMAL)
 	@echo $(CYAN)"# 'libhacl/' for the HACL* crypto provider"$(NORMAL)
@@ -62,4 +65,5 @@ libeverestcrypto: libhacl libvale
 
 clean:
 	$(MAKE) clean -C libvale
-	rm -rf *~ libeverestcrypto/*.a
+	rm -rf *~ libeverestcrypto/*.a libeverestcrypto/*.o
+	rm -rf *~ libeverestcrypto/build
