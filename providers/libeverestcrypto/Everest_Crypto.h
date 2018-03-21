@@ -21,10 +21,10 @@
  * SOFTWARE.
  */
 
-#include "stdint.h"
 #ifndef __Everest_Crypto_H
 #define __Everest_Crypto_H
 
 #include "Everest_Crypto_Full.h"
+#include "Everest_Crypto_Agile.h"
 
 #endif

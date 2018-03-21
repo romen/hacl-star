@@ -23,26 +23,26 @@
 
 #include "stdint.h"
 #include "Everest_Crypto_Full.h"
-#include "Everest_Crypto.h"
+#include "Everest_Crypto_Agile.h"
 
 
-struct Config {
-  bool hacl;
-  bool vale;
-  bool openssl;
-  void* fun_everestcrypto_curve25519_scalarmult;
-  void* fun_everestcrypto_aes_keyExpansion;
-  void* fun_everestcrypto_aes_cipher;
-  /* void* fun_everestcrypto_chacha20_setup; */
-  /* void* fun_everestcrypto_chacha20_stream; */
-  /* void* fun_everestcrypto_chacha20_stream_finish; */
-  void* fun_everestcrypto_chacha20;
-  void* fun_everestcrypto_poly1305_64;
-  void* fun_everestcrypto_sha2_256_init;
-  void* fun_everestcrypto_sha2_256_update;
-  void* fun_everestcrypto_sha2_256_update_last;
-  void* fun_everestcrypto_sha2_256_finish;
-} config_t;
+/* struct Config { */
+/*   bool hacl; */
+/*   bool vale; */
+/*   bool openssl; */
+/*   void* fun_everestcrypto_curve25519_scalarmult; */
+/*   void* fun_everestcrypto_aes_keyExpansion; */
+/*   void* fun_everestcrypto_aes_cipher; */
+/*   /\* void* fun_everestcrypto_chacha20_setup; *\/ */
+/*   /\* void* fun_everestcrypto_chacha20_stream; *\/ */
+/*   /\* void* fun_everestcrypto_chacha20_stream_finish; *\/ */
+/*   void* fun_everestcrypto_chacha20; */
+/*   void* fun_everestcrypto_poly1305_64; */
+/*   void* fun_everestcrypto_sha2_256_init; */
+/*   void* fun_everestcrypto_sha2_256_update; */
+/*   void* fun_everestcrypto_sha2_256_update_last; */
+/*   void* fun_everestcrypto_sha2_256_finish; */
+/* } config_t; */
 
 // Curve25519
 void (*pointer_everestcrypto_curve25519_scalarmult)(uint8_t *, uint8_t *, uint8_t *);

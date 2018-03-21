@@ -22,6 +22,10 @@
  */
 
 #include "stdint.h"
+#include "stdbool.h"
+#ifndef __Everest_Crypto_Agile_H
+#define __Everest_Crypto_Agile_H
+
 
 struct Config {
   bool hacl;
@@ -80,3 +84,5 @@ void everestcrypto_sha2_256_init(config_t* c, uint32_t *state);
 void everestcrypto_sha2_256_update(config_t* c, uint32_t *state, uint8_t *data);
 void everestcrypto_sha2_256_update_last(config_t* c, uint32_t *state, uint8_t *data, uint32_t *len);
 void everestcrypto_sha2_256_finish(config_t* c, uint32_t *state, uint8_t *dst);
+
+#endif
