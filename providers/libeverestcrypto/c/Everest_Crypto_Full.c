@@ -62,17 +62,17 @@ void everestcrypto_vale_aes_cipher(uint8_t *out, uint8_t *in, uint8_t *w, uint8_
 
 typedef uint8_t* hacl_chacha20_state;
 
-void everestcrypto_hacl_chacha20_setup(everestcrypto_hacl_chacha20_state st, uint8_t* k, uint8_t* n, uint32_t c) {
-  Hacl_SecureAPI_Chacha20_setup(st, k, n, c);
-}
+/* void everestcrypto_hacl_chacha20_setup(everestcrypto_hacl_chacha20_state st, uint8_t* k, uint8_t* n, uint32_t c) { */
+/*   Hacl_SecureAPI_Chacha20_setup(st, k, n, c); */
+/* } */
 
-void everestcrypto_hacl_chacha20_stream(uint8_t* stream_block, everestcrypto_hacl_chacha20_state st) {
-  Hacl_SecureAPI_stream(stream_block, st);
-}
+/* void everestcrypto_hacl_chacha20_stream(uint8_t* stream_block, everestcrypto_hacl_chacha20_state st) { */
+/*   Hacl_SecureAPI_stream(stream_block, st); */
+/* } */
 
-void everestcrypto_hacl_chacha20_stream_finish(uint8_t* stream_block, uint32_t len, everestcrypto_hacl_chacha20_state st) {
-  Hacl_SecureAPI_stream(stream_block, st);
-}
+/* void everestcrypto_hacl_chacha20_stream_finish(uint8_t* stream_block, uint32_t len, everestcrypto_hacl_chacha20_state st) { */
+/*   Hacl_SecureAPI_stream(stream_block, st); */
+/* } */
 
 void everestcrypto_hacl_chacha20(uint8_t* output, uint8_t* plain, uint32_t len, uint8_t* key, uint8_t* nonce, uint32_t ctr) {
   Hacl_Chacha20_chacha20(output, plain, len, key, nonce, ctr);
