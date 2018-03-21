@@ -20,10 +20,18 @@ int main() {
 
   everestcrypto_openssl_curve25519_scalarmult(output, input, basepoint);
 
-  printf("Result    = ");
+  printf("Result BoringSSL = ");
   for (int i = 0; i < 32; i++) {
     printf("%02x ", output[i]);
   }
   printf("\n");
-  return 0;
+
+  everestcrypto_hacl_curve25519_scalarmult(output, input, basepoint);
+
+  printf("Result HACL*     = ");
+  for (int i = 0; i < 32; i++) {
+    printf("%02x ", output[i]);
+  }
+ printf("\n");
+ return 0;
 }
