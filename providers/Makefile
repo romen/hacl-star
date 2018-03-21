@@ -1,8 +1,8 @@
 include ../Makefile.include
 
-.PHONY: libhacl libvale
+.PHONY:
 
-all: libeverestcrypto
+all: libeverestcrypto/libeverestcrypto.so
 
 # TODO: Reuse a target by importing Makefile.build instead
 HACL_HEADERS= $(addprefix $(HACL_HOME)/snapshots/hacl-c/, \
@@ -22,7 +22,7 @@ HACL_HEADERS= $(addprefix $(HACL_HOME)/snapshots/hacl-c/, \
 # This target builds the libhacl static library from an
 # up-to-date version of the HACL* snapshot and imports the
 # associated HACL.fsti, HACL.h and necessary header files.
-libhacl:
+libhacl/libhacl.a:
 	mkdir -p libhacl
 	$(MAKE) build -C $(HACL_HOME) # Top-level HACL* target
 	cp $(HACL_HOME)/build/libhacl* libhacl
@@ -34,36 +34,42 @@ libhacl:
 # stored version of Vale and provides a Vale.fsti and Vale.h.
 # TODO: Make sure to always import the most recent version
 # of Vale as it is what happens for HACL*.
-libvale:
+libvale/libvale.a:
 	$(MAKE) -C libvale
 
 # This target builds the libeverestcrypto static library by
 # unpacking and repacking together libhacl.a, libvale.a and
 # libcrypto.a. It provides an Everest_Crypto.fsti and an
 # Everest_Crypto.h associated to that library as well.
-libeverestcrypto: libhacl libvale
+libeverestcrypto/libeverestcrypto.so: libhacl/libhacl.a libvale/libvale.a
 	mkdir -p libeverestcrypto/build
 	cp libhacl/libhacl.a libeverestcrypto/build
 	cp libvale/libvale.a libeverestcrypto/build
 	cp $(BORINGSSL_HOME)/build/crypto/libcrypto.a libeverestcrypto/build
-	$(CC) -c libeverestcrypto/c/Everest_Crypto_Full.c \
-		-I libhacl -I libvale/c -I $(KREMLIN_HOME)/kremlib -I $(BORINGSSL_HOME)/include \
-		-o libeverestcrypto/build/Everest_Crypto_Full.o
+	cd libeverestcrypto/c && \
+	$(CC) -c Everest_Crypto_Full.c \
+		-I ../../libhacl -I ../../libvale/c -I $(KREMLIN_HOME)/kremlib -I $(BORINGSSL_HOME)/include \
+		-o Everest_Crypto_Full.o
+	cp libeverestcrypto/c/Everest_Crypto_Full.o libeverestcrypto/build
 	cd libeverestcrypto/build && \
-	gar -x libhacl.a && \
-	gar -x libvale.a && \
-	gar -x libcrypto.a && \
-	gar -rcs libeverestcrypto.a *.o
-#	glibtool --mode=link --tag=CC gar --target=mach-o-x86-64 -o libeverestcrypto.a -static libhacl.a libvale.a libcrypto.a
-	cp libeverestcrypto/build/libeverestcrypto.a libeverestcrypto
+	$(CC) -shared Everest_Crypto_Full.o libhacl.a libvale.a libcrypto.a -o libeverestcrypto.so
+	cp libeverestcrypto/build/libeverestcrypto.so libeverestcrypto/libeverestcrypto.so
 	rm -rf libeverestcrypto/build
 	@echo $(CYAN)"# Done ! Generated libraries can be found in: "$(NORMAL)
 	@echo $(CYAN)"# 'libhacl/' for the HACL* crypto provider"$(NORMAL)
 	@echo $(CYAN)"# 'libvale/' for the Vale crypto provider"$(NORMAL)
 	@echo $(CYAN)"# 'libeverestcrypto/' for the Everest_Crypto provider"$(NORMAL)
 
+test: libeverestcrypto/libeverestcrypto.so
+	cp libeverestcrypto/libeverestcrypto.so libeverestcrypto/test
+	$(MAKE) test.exe -C libeverestcrypto/test
+	cd libeverestcrypto/test && ./test.exe
 
 clean:
+	rm -rf *.{~,o,a,so,dylib,exe}
+	rm -rf libhacl/*.{~,o,a,so,dylib,exe}
 	$(MAKE) clean -C libvale
-	rm -rf *~ libeverestcrypto/*.a libeverestcrypto/*.o
+	$(MAKE) clean -C libeverestcrypto/test
+	rm -rf *~ libeverestcrypto/*.{o,a,so,dylib,exe}
+	rm -rf *~ libeverestcrypto/c/*.o
 	rm -rf *~ libeverestcrypto/build

@@ -1,11 +1,11 @@
-include ../../../../Makefile.include
+include ../../../Makefile.include
+
+all: test.exe
 
 test.exe:
-	gcc-7 -c test.c -o test.o \
+	$(CC) -c test.c -o test.o \
 		-I .. -I ../c -I ../../libhacl -I ../../libvale -I $(OPENSSL_HOME)/include
-	gcc-7 test.o ../libeverestcrypto.a -L .. \
-		-I .. -I ../c -I ../../libhacl -I ../../libvale -I $(OPENSSL_HOME)/include \
-		-o test.exe
+	$(CC) test.o -L . -leverestcrypto -o test.exe
 
 clean:
-	rm -rf *~ *.exe *.o
+	rm -rf *~ *.exe *.o *.so *.a *.dylib
