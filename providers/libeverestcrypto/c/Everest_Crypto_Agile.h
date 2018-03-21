@@ -27,7 +27,7 @@
 #define __Everest_Crypto_Agile_H
 
 
-struct Config {
+struct config_t {
   bool hacl;
   bool vale;
   bool openssl;
@@ -43,46 +43,46 @@ struct Config {
   void* fun_everestcrypto_sha2_256_update;
   void* fun_everestcrypto_sha2_256_update_last;
   void* fun_everestcrypto_sha2_256_finish;
-} config_t;
+};
 
 //
 // Top-level Everest Initialization
 //
 
-config_t* everestcrypto_init();
+struct config_t* everestcrypto_init();
 
 //
 // Curve25519
 //
 
-void everestcrypto_curve25519_scalarmult(config_t* c, uint8_t *mypublic, uint8_t *secret, uint8_t *basepoint);
+void everestcrypto_curve25519_scalarmult(struct config_t* c, uint8_t *mypublic, uint8_t *secret, uint8_t *basepoint);
 
 //
 // AES
 //
 
-void everestcrypto_aes_keyExpansion(config_t* c, uint8_t *k, uint8_t *w, uint8_t *sb);
-void everestcrypto_aes_cipher(config_t* c, uint8_t *out, uint8_t *in, uint8_t *w, uint8_t *sb);
+void everestcrypto_aes_keyExpansion(struct config_t* c, uint8_t *k, uint8_t *w, uint8_t *sb);
+void everestcrypto_aes_cipher(struct config_t* c, uint8_t *out, uint8_t *in, uint8_t *w, uint8_t *sb);
 
 //
 // Chacha20
 //
 
-void everestcrypto_chacha20(config_t* c, uint8_t* output, uint8_t* plain, uint32_t len, uint8_t* key, uint8_t* nonce, uint32_t ctr);
+void everestcrypto_chacha20(struct config_t* c, uint8_t* output, uint8_t* plain, uint32_t len, uint8_t* key, uint8_t* nonce, uint32_t ctr);
 
 //
 // Poly1305
 //
 
-void everestcrypto_poly1305_64(config_t* c, uint8_t *output, uint8_t *input, uint64_t len, uint8_t *key);
+void everestcrypto_poly1305_64(struct config_t* c, uint8_t *output, uint8_t *input, uint64_t len, uint8_t *key);
 
 //
 // SHA2_256
 //
 
-void everestcrypto_sha2_256_init(config_t* c, uint32_t *state);
-void everestcrypto_sha2_256_update(config_t* c, uint32_t *state, uint8_t *data);
-void everestcrypto_sha2_256_update_last(config_t* c, uint32_t *state, uint8_t *data, uint32_t *len);
-void everestcrypto_sha2_256_finish(config_t* c, uint32_t *state, uint8_t *dst);
+void everestcrypto_sha2_256_init(struct config_t* c, uint32_t *state);
+void everestcrypto_sha2_256_update(struct config_t* c, uint32_t *state, uint8_t *data);
+void everestcrypto_sha2_256_update_last(struct config_t* c, uint32_t *state, uint8_t *data, uint32_t *len);
+void everestcrypto_sha2_256_finish(struct config_t* c, uint32_t *state, uint8_t *dst);
 
 #endif

@@ -60,7 +60,7 @@ val everestcrypto_hacl_curve25519_scalarmult:
     (ensures  (fun h0 _ h1 ->
               B.live h1 mypublic /\ B.modifies_1 mypublic h0 h1
               /\ B.live h0 mypublic /\ B.live h0 secret /\ B.live h0 basepoint
-              /\ h1.(mypublic) == spec_curve25519_scalarmult h0.(secret) h0.(basepoint)))
+              /\ h1.(mypublic) == Spec.Curve25519.scalarmult h0.(secret) h0.(basepoint)))
 
 val everestcrypto_openssl_curve25519_scalarmult:
   mypublic :uint8_p{B.length mypublic = 32} ->

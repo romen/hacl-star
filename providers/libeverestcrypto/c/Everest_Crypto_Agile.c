@@ -67,49 +67,51 @@ void (*pointer_everestcrypto_sha2_256_update_last)(uint32_t *, uint8_t *, uint32
 void (*pointer_everestcrypto_sha2_256_finish)(uint32_t *, uint8_t *);
 
 
-config_t* everestcrypto_init() {
-  struct config_t* c;
-  if (c.vale) {
-    pointer_everestcrypto_curve25519_scalarmult = &everestcrypto_hacl_curve25519_scalarmult;
-    pointer_everestcrypto_aes_keyExpansion = &everestcrypto_vale_aes_keyExpansion;
-    pointer_everestcrypto_aes_cipher = &everestcrypto_vale_aes_cipher;
-    /* pointer_everestcrypto_chacha20_setup = &everestcrypto_hacl_chacha20_setup; */
-    /* pointer_everestcrypto_chacha20_stream = &everestcrypto_hacl_chacha20_stream; */
-    /* pointer_everestcrypto_chacha20_stream_finish = &everestcrypto_hacl_chacha20_stream_finish; */
-    pointer_everestcrypto_chacha20 = &everestcrypto_chacha20;
-    pointer_everestcrypto_poly1305_64 = &everestcrypto_vale_poly1305_64;
-    pointer_everestcrypto_sha2_256_init = &everestcrypto_vale_sha2_256_init;
-    pointer_everestcrypto_sha2_256_update = &everestcrypto_vale_sha2_256_update;
-    pointer_everestcrypto_sha2_256_update_last = &everestcrypto_vale_sha2_256_update_last;
-    pointer_everestcrypto_sha2_256_finish = &everestcrypto_vale_sha2_256_finish;
-  } else if (c.hacl) {
-    pointer_everestcrypto_curve25519_scalarmult = &everestcrypto_hacl_curve25519_scalarmult;
-    pointer_everestcrypto_aes_keyExpansion = &everestcrypto_openssl_aes_keyExpansion;
-    pointer_everestcrypto_aes_cipher = &everestcrypto_openssl_aes_cipher;
-    /* pointer_everestcrypto_chacha20_setup = &everestcrypto_hacl_chacha20_setup; */
-    /* pointer_everestcrypto_chacha20_stream = &everestcrypto_hacl_chacha20_stream; */
-    /* pointer_everestcrypto_chacha20_stream_finish = &everestcrypto_hacl_chacha20_stream_finish; */
-    pointer_everestcrypto_chacha20 = &everestcrypto_hacl_chacha20;
-    pointer_everestcrypto_poly1305_64 = &everestcrypto_hacl_poly1305_64;
-    pointer_everestcrypto_sha2_256_init = &everestcrypto_hacl_sha2_256_init;
-    pointer_everestcrypto_sha2_256_update = &everestcrypto_hacl_sha2_256_update;
-    pointer_everestcrypto_sha2_256_update_last = &everestcrypto_hacl_sha2_256_update_last;
-    pointer_everestcrypto_sha2_256_finish = &everestcrypto_hacl_sha2_256_finish;
-  } else {
-    pointer_everestcrypto_curve25519_scalarmult = &everestcrypto_openssl_curve25519_scalarmult;
-    pointer_everestcrypto_aes_keyExpansion = &everestcrypto_openssl_aes_keyExpansion;
-    pointer_everestcrypto_aes_cipher = &everestcrypto_openssl_aes_cipher;
-    /* pointer_everestcrypto_chacha20_setup = &everestcrypto_openssl_chacha20_setup; */
-    /* pointer_everestcrypto_chacha20_stream = &everestcrypto_openssl_chacha20_stream; */
-    /* pointer_everestcrypto_chacha20_stream_finish = &everestcrypto_openssl_chacha20_stream_finish; */
-    pointer_everestcrypto_chacha20 = &everestcrypto_openssl_chacha20;
-    pointer_everestcrypto_poly1305_64 = &everestcrypto_openssl_poly1305_64;
-    pointer_everestcrypto_sha2_256_init = &everestcrypto_openssl_sha2_256_init;
-    pointer_everestcrypto_sha2_256_update = &everestcrypto_openssl_sha2_256_update;
-    pointer_everestcrypto_sha2_256_update_last = &everestcrypto_openssl_sha2_256_update_last;
-    pointer_everestcrypto_sha2_256_finish = &everestcrypto_openssl_sha2_256_finish;
+struct config_t* everestcrypto_init() {
+  struct config_t *c = (struct config_t *)malloc(sizeof(struct config_t));
+  if (c) {
+    if (c->vale) {
+      pointer_everestcrypto_curve25519_scalarmult = (void*)&everestcrypto_hacl_curve25519_scalarmult;
+      pointer_everestcrypto_aes_keyExpansion = (void*)&everestcrypto_vale_aes_keyExpansion;
+      pointer_everestcrypto_aes_cipher = (void*)&everestcrypto_vale_aes_cipher;
+      /* pointer_everestcrypto_chacha20_setup = (void*)&everestcrypto_hacl_chacha20_setup; */
+      /* pointer_everestcrypto_chacha20_stream = (void*)&everestcrypto_hacl_chacha20_stream; */
+      /* pointer_everestcrypto_chacha20_stream_finish = (void*)&everestcrypto_hacl_chacha20_stream_finish; */
+      pointer_everestcrypto_chacha20 = (void*)&everestcrypto_chacha20;
+      pointer_everestcrypto_poly1305_64 = (void*)&everestcrypto_vale_poly1305_64;
+      pointer_everestcrypto_sha2_256_init = (void*)&everestcrypto_vale_sha2_256_init;
+      pointer_everestcrypto_sha2_256_update = (void*)&everestcrypto_vale_sha2_256_update;
+      pointer_everestcrypto_sha2_256_update_last = (void*)&everestcrypto_vale_sha2_256_update_last;
+      pointer_everestcrypto_sha2_256_finish = (void*)&everestcrypto_vale_sha2_256_finish;
+    } else if (c->hacl) {
+      pointer_everestcrypto_curve25519_scalarmult = (void*)&everestcrypto_hacl_curve25519_scalarmult;
+      pointer_everestcrypto_aes_keyExpansion = (void*)&everestcrypto_vale_aes_keyExpansion;
+      pointer_everestcrypto_aes_cipher = (void*)&everestcrypto_vale_aes_cipher;
+      /* pointer_everestcrypto_chacha20_setup = (void*)&everestcrypto_hacl_chacha20_setup; */
+      /* pointer_everestcrypto_chacha20_stream = (void*)&everestcrypto_hacl_chacha20_stream; */
+      /* pointer_everestcrypto_chacha20_stream_finish = (void*)&everestcrypto_hacl_chacha20_stream_finish; */
+      pointer_everestcrypto_chacha20 = (void*)&everestcrypto_chacha20;
+      pointer_everestcrypto_poly1305_64 = (void*)&everestcrypto_vale_poly1305_64;
+      pointer_everestcrypto_sha2_256_init = (void*)&everestcrypto_vale_sha2_256_init;
+      pointer_everestcrypto_sha2_256_update = (void*)&everestcrypto_vale_sha2_256_update;
+      pointer_everestcrypto_sha2_256_update_last = (void*)&everestcrypto_vale_sha2_256_update_last;
+      pointer_everestcrypto_sha2_256_finish = (void*)&everestcrypto_vale_sha2_256_finish;
+    } else {
+      pointer_everestcrypto_curve25519_scalarmult = (void*)&everestcrypto_hacl_curve25519_scalarmult;
+      pointer_everestcrypto_aes_keyExpansion = (void*)&everestcrypto_vale_aes_keyExpansion;
+      pointer_everestcrypto_aes_cipher = (void*)&everestcrypto_vale_aes_cipher;
+      /* pointer_everestcrypto_chacha20_setup = (void*)&everestcrypto_hacl_chacha20_setup; */
+      /* pointer_everestcrypto_chacha20_stream = (void*)&everestcrypto_hacl_chacha20_stream; */
+      /* pointer_everestcrypto_chacha20_stream_finish = (void*)&everestcrypto_hacl_chacha20_stream_finish; */
+      pointer_everestcrypto_chacha20 = (void*)&everestcrypto_chacha20;
+      pointer_everestcrypto_poly1305_64 = (void*)&everestcrypto_vale_poly1305_64;
+      pointer_everestcrypto_sha2_256_init = (void*)&everestcrypto_vale_sha2_256_init;
+      pointer_everestcrypto_sha2_256_update = (void*)&everestcrypto_vale_sha2_256_update;
+      pointer_everestcrypto_sha2_256_update_last = (void*)&everestcrypto_vale_sha2_256_update_last;
+      pointer_everestcrypto_sha2_256_finish = (void*)&everestcrypto_vale_sha2_256_finish;
+    }
   }
-  return &c;
+  return c;
 }
 
 
@@ -117,20 +119,20 @@ config_t* everestcrypto_init() {
 // Curve25519
 //
 
-void everestcrypto_curve25519_scalarmult(config_t* c, uint8_t *mypublic, uint8_t *secret, uint8_t *basepoint) {
-  (*c.fun_everestcrypto_curve25519_scalarmult)(mypublic, secret, basepoint);
+void everestcrypto_curve25519_scalarmult(struct config_t* c, uint8_t *mypublic, uint8_t *secret, uint8_t *basepoint) {
+  (*c->fun_everestcrypto_curve25519_scalarmult)(mypublic, secret, basepoint);
 }
 
 //
 // AES
 //
 
-void everestcrypto_aes_keyExpansion(config_t* c, uint8_t *k, uint8_t *w, uint8_t *sb) {
-  (*c.fun_everestcrypto_aes_keyExpansion)(k, w, sb);
+void everestcrypto_aes_keyExpansion(struct config_t* c, uint8_t *k, uint8_t *w, uint8_t *sb) {
+  (*c->fun_everestcrypto_aes_keyExpansion)(k, w, sb);
 }
 
-void everestcrypto_aes_cipher(config_t* c, uint8_t *out, uint8_t *in, uint8_t *w, uint8_t *sb) {
-  (*c.fun_everestcrypto_aes_cipher)(out, in, w, sb)
+void everestcrypto_aes_cipher(struct config_t* c, uint8_t *out, uint8_t *in, uint8_t *w, uint8_t *sb) {
+  (*c->fun_everestcrypto_aes_cipher)(out, in, w, sb)
 }
 
 //
@@ -139,7 +141,7 @@ void everestcrypto_aes_cipher(config_t* c, uint8_t *out, uint8_t *in, uint8_t *w
 
 typedef uint8_t* hacl_chacha20_state;
 
-/* void everestcrypto_hacl_chacha20_setup(everestcrypto_hacl_chacha20_state st, uint8_t* k, uint8_t* n, uint32_t c) { */
+/* void everestcrypto_hacl_chacha20_setup(struct everestcrypto_hacl_chacha20_state st, uint8_t* k, uint8_t* n, uint32_t c) { */
 /*   Hacl_SecureAPI_Chacha20_setup(st, k, n, c); */
 /* } */
 
@@ -147,38 +149,38 @@ typedef uint8_t* hacl_chacha20_state;
 /*   Hacl_SecureAPI_stream(stream_block, st); */
 /* } */
 
-/* void everestcrypto_hacl_chacha20_stream_finish(uint8_t* stream_block, uint32_t len, everestcrypto_hacl_chacha20_state st) { */
+/* void everestcrypto_hacl_chacha20_stream_finish(struct uint8_t* stream_block, uint32_t len, everestcrypto_hacl_chacha20_state st) { */
 /*   Hacl_SecureAPI_stream(stream_block, st); */
 /* } */
 
-void everestcrypto_chacha20(config_t* c, uint8_t* output, uint8_t* plain, uint32_t len, uint8_t* key, uint8_t* nonce, uint32_t ctr) {
-  (*c.fun_everestcrypto_chacha20)(output, plain, len, key, nonce, ctr);
+void everestcrypto_chacha20(struct config_t* c, uint8_t* output, uint8_t* plain, uint32_t len, uint8_t* key, uint8_t* nonce, uint32_t ctr) {
+  (*c->fun_everestcrypto_chacha20)(output, plain, len, key, nonce, ctr);
 }
 
 //
 // Poly1305
 //
 
-void everestcrypto_poly1305_64(config_t* c, uint8_t *output, uint8_t *input, uint64_t len, uint8_t *key) {
-  (*c.everestcrypto_poly1305_64)(output, input, len, key);
+void everestcrypto_poly1305_64(struct config_t* c, uint8_t *output, uint8_t *input, uint64_t len, uint8_t *key) {
+  (*c->everestcrypto_poly1305_64)(output, input, len, key);
 }
 
 //
 // SHA2_256
 //
 
-void everestcrypto_sha2_256_init(config_t* c, uint32_t *state) {
-  (*c.everestcrypto_sha2_256_init)(state);
+void everestcrypto_sha2_256_init(struct config_t* c, uint32_t *state) {
+  (*c->everestcrypto_sha2_256_init)(state);
 }
 
-void everestcrypto_sha2_256_update(config_t* c, uint32_t *state, uint8_t *data) {
-  (*c.everestcrypto_sha2_256_update)(state, data);
+void everestcrypto_sha2_256_update(struct config_t* c, uint32_t *state, uint8_t *data) {
+  (*c->everestcrypto_sha2_256_update)(state, data);
 }
 
-void everestcrypto_sha2_256_update_last(config_t* c, uint32_t *state, uint8_t *data, uint32_t *len) {
-  (*c.everestcrypto_sha2_256_update_last)(state, data, len);
+void everestcrypto_sha2_256_update_last(struct config_t* c, uint32_t *state, uint8_t *data, uint32_t *len) {
+  (*c->everestcrypto_sha2_256_update_last)(state, data, len);
 }
 
-void everestcrypto_sha2_256_finish(config_t* c, uint32_t *state, uint8_t *dst) {
-  (*c.everestcrypto_sha2_256_finish)(state, dst);
+void everestcrypto_sha2_256_finish(struct config_t* c, uint32_t *state, uint8_t *dst) {
+  (*c->everestcrypto_sha2_256_finish)(state, dst);
 }

@@ -49,16 +49,15 @@ let op_Array_Access m b = as_seq m b
 /// Everest Configuration
 ///
 
-val config_t : Type0
+val config_p : Type0
 ///
 /// Everest Crypto Provider Initialization
 ///
 
-val everestcrypto_init: unit ->
-  StackInline (config :config_t)
-    (requires (fun h -> True))
-    (ensures  (fun h0 m h1 -> True))
-
+val everestcrypto_init: config_p ->
+  StackInline unit
+    (requires (fun h -> live h config_p))
+    (ensures  (fun h0 _ h1 -> live h1 config_p))
 
 ///
 /// Curve25519

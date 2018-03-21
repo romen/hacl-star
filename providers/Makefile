@@ -51,6 +51,11 @@ libeverestcrypto/libeverestcrypto.so: libhacl/libhacl.a libvale/libvale.a
 		-I ../../libhacl -I ../../libvale/c -I $(KREMLIN_HOME)/kremlib -I $(BORINGSSL_HOME)/include \
 		-o Everest_Crypto_Full.o
 	cp libeverestcrypto/c/Everest_Crypto_Full.o libeverestcrypto/build
+	cd libeverestcrypto/c && \
+	$(CC) -c Everest_Crypto_Agile.c \
+		-I ../../libhacl -I ../../libvale/c -I $(KREMLIN_HOME)/kremlib -I $(BORINGSSL_HOME)/include \
+		-o Everest_Crypto_Agile.o
+	cp libeverestcrypto/c/Everest_Crypto_Agile.o libeverestcrypto/build
 	cd libeverestcrypto/build && \
 	$(CC) -shared Everest_Crypto_Full.o libhacl.a libvale.a libcrypto.a -o libeverestcrypto.so
 	cp libeverestcrypto/build/libeverestcrypto.so libeverestcrypto/libeverestcrypto.so
