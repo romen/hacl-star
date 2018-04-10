@@ -2,7 +2,7 @@ include ../Makefile.include
 
 .PHONY:
 
-all: libeverestcrypto/libeverestcrypto.so
+all: libevercrypt/libevercrypt.so
 
 # TODO: Reuse a target by importing Makefile.build instead
 HACL_HEADERS= $(addprefix $(HACL_HOME)/snapshots/hacl-c/, \
@@ -37,39 +37,39 @@ libhacl/libhacl.a:
 libvale/libvale.a:
 	$(MAKE) -C libvale
 
-# This target builds the libeverestcrypto static library by
+# This target builds the libevercrypt static library by
 # unpacking and repacking together libhacl.a, libvale.a and
 # libcrypto.a. It provides an Everest_Crypto.fsti and an
 # Everest_Crypto.h associated to that library as well.
-libeverestcrypto/libeverestcrypto.so: libhacl/libhacl.a libvale/libvale.a
-	mkdir -p libeverestcrypto/build
-	cp libhacl/libhacl.a libeverestcrypto/build
-	cp libvale/libvale.a libeverestcrypto/build
-	cp $(BORINGSSL_HOME)/build/crypto/libcrypto.a libeverestcrypto/build
-	cd libeverestcrypto/c && \
+libevercrypt/libevercrypt.so: libhacl/libhacl.a libvale/libvale.a
+	mkdir -p libevercrypt/build
+	cp libhacl/libhacl.a libevercrypt/build
+	cp libvale/libvale.a libevercrypt/build
+	cp $(BORINGSSL_HOME)/build/crypto/libcrypto.a libevercrypt/build
+	cd libevercrypt/c && \
 	$(CC) -c Everest_Crypto_Full.c \
 		-I ../../libhacl -I ../../libvale/c -I $(KREMLIN_HOME)/kremlib -I $(BORINGSSL_HOME)/include \
 		-o Everest_Crypto_Full.o
-	cp libeverestcrypto/c/Everest_Crypto_Full.o libeverestcrypto/build
-	cd libeverestcrypto/build && \
-	$(CC) -shared Everest_Crypto_Full.o libhacl.a libvale.a libcrypto.a -o libeverestcrypto.so
-	cp libeverestcrypto/build/libeverestcrypto.so libeverestcrypto/libeverestcrypto.so
-	rm -rf libeverestcrypto/build
+	cp libevercrypt/c/Everest_Crypto_Full.o libevercrypt/build
+	cd libevercrypt/build && \
+	$(CC) -shared Everest_Crypto_Full.o libhacl.a libvale.a libcrypto.a -o libevercrypt.so
+	cp libevercrypt/build/libevercrypt.so libevercrypt/libevercrypt.so
+	rm -rf libevercrypt/build
 	@echo $(CYAN)"# Done ! Generated libraries can be found in: "$(NORMAL)
 	@echo $(CYAN)"# 'libhacl/' for the HACL* crypto provider"$(NORMAL)
 	@echo $(CYAN)"# 'libvale/' for the Vale crypto provider"$(NORMAL)
-	@echo $(CYAN)"# 'libeverestcrypto/' for the Everest_Crypto provider"$(NORMAL)
+	@echo $(CYAN)"# 'libevercrypt/' for the Everest_Crypto provider"$(NORMAL)
 
-test: libeverestcrypto/libeverestcrypto.so
-	cp libeverestcrypto/libeverestcrypto.so libeverestcrypto/test
-	$(MAKE) test.exe -C libeverestcrypto/test
-	cd libeverestcrypto/test && ./test.exe
+test: libevercrypt/libevercrypt.so
+	cp libevercrypt/libevercrypt.so libevercrypt/test
+	$(MAKE) test.exe -C libevercrypt/test
+	cd libevercrypt/test && ./test.exe
 
 clean:
 	rm -rf *.{~,o,a,so,dylib,exe}
 	rm -rf libhacl/*.{~,o,a,so,dylib,exe}
 	$(MAKE) clean -C libvale
-	$(MAKE) clean -C libeverestcrypto/test
-	rm -rf *~ libeverestcrypto/*.{o,a,so,dylib,exe}
-	rm -rf *~ libeverestcrypto/c/*.o
-	rm -rf *~ libeverestcrypto/build
+	$(MAKE) clean -C libevercrypt/test
+	rm -rf *~ libevercrypt/*.{o,a,so,dylib,exe}
+	rm -rf *~ libevercrypt/c/*.o
+	rm -rf *~ libevercrypt/build
