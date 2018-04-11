@@ -183,14 +183,14 @@ libhacl32.a: $(FILES)
 
 unit-tests: libhacl.so
 	$(CC) $(CCOPTS) \
-	-I . -I ../snapshots/kremlib -I ../../test/test-files/ -I $(TWEETNACL_HOME) \
+	-I . -I ../snapshots/api -I ../snapshots/kremlib -I ../../test/test-files/ -I $(TWEETNACL_HOME) \
 	$(TWEETNACL_HOME)/tweetnacl.c ../../test/test-files/hacl_test_utils.c \
 	../../test/test-files/unit_tests.c libhacl.so -o unit_tests.exe
 	LD_LIBRARY_PATH=. DYLD_LIBRARY_PATH=. ./unit_tests.exe
 
 unit-tests32: libhacl32.so
 	$(CC) $(CCOPTS32) \
-	-I . -I ../snapshots/kremlib -I ../../test/test-files/ -I $(TWEETNACL_HOME) \
+	-I . -I ../snapshots/api -I ../snapshots/kremlib -I ../../test/test-files/ -I $(TWEETNACL_HOME) \
 	$(TWEETNACL_HOME)/tweetnacl.c ../../test/test-files/hacl_test_utils.c \
 	../../test/test-files/unit_tests.c libhacl32.so -o unit_tests32.exe
 	LD_LIBRARY_PATH=. DYLD_LIBRARY_PATH=. ./unit_tests32.exe
