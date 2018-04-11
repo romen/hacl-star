@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <time.h>
 
+#include "HACL.h"
 #include "haclnacl.h"
 #include "tweetnacl.h"
 #include "hacl_test_utils.h"
@@ -71,7 +72,7 @@ uint8_t
 chacha_nonce[12] =
     {
       0,      0,      0,      0,      0,      0,      0,      0x4a,
-      0,      0,      0,      0    
+      0,      0,      0,      0
     };
 
 
@@ -127,7 +128,7 @@ bool unit_test_chacha20_vec128(){
   uint8_t ciphertext[114];
   memset(ciphertext, 0, 114 * sizeof ciphertext[0]);
   uint32_t counter = (uint32_t )1;
-  chacha20_vec128(ciphertext,chacha_plaintext,114, chacha_key, chacha_nonce, counter);
+  Hacl_Chacha20_Vec128(ciphertext,chacha_plaintext,114, chacha_key, chacha_nonce, counter);
 
     a = memcmp(ciphertext, chacha_ciphertext, 114 * sizeof (uint8_t));
     if (a != 0){
@@ -166,7 +167,7 @@ bool unit_test_aead(){
     printf("AEAD (Poly1305) failed on RFC test of size 114\n.");
     goto result;
   }
-  
+
   a = aead_chacha20_poly1305_decrypt(plaintext,aead_ciphertext, 114, aead_mac, aead_aad, 12, aead_key, aead_nonce);
   if (a != 0){
     pass = false;
@@ -544,7 +545,7 @@ int main(){
     printf("Unit tests for crypto_secretbox (Salsa20/Poly1305) succeeded\n");
   } else {
     printf("Unit tests for crypto_secretbox (Salsa20/Poly1305) *** FAILED ***\n");
-  } 
+  }
   res = res && unit_test_chacha20();
   if (res == true) {
     printf("Unit tests for IETF Chacha20 succeeded\n");
@@ -562,7 +563,7 @@ int main(){
     printf("Unit tests for IETF AEAD (Chacha20/Poly1305) succeeded\n");
   } else {
     printf("Unit tests for IETF AEAD (Chacha20/Poly1305) *** FAILED ***\n");
-  } 
+  }
   res = res && unit_test_crypto_keypair();
   if (res == true) {
     printf("Unit tests for crypto_keypair (Curve25519) succeeded\n");
