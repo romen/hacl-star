@@ -1,3 +1,8 @@
+/**************************************************************************
+ * WARNING:
+ * This file is handwritten and MUST be reviewed properly before use
+ **************************************************************************/
+
 #include "haclnacl.h"
 #include "kremlib.h"
 #include "Hacl_Curve25519.h"

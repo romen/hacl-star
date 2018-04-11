@@ -1,3 +1,8 @@
+/**************************************************************************
+ * WARNING:
+ * This file is handwritten and MUST be reviewed properly before use
+ **************************************************************************/
+
 #include <inttypes.h>
 
 #define crypto_auth_BYTES 32
@@ -10,10 +15,10 @@
 #define crypto_box_ZEROBYTES 32
 #define crypto_box_BOXZEROBYTES 16
 
-#define crypto_core_OUTPUTBYTES crypto_core_salsa20_OUTPUTBYTES
-#define crypto_core_INPUTBYTES crypto_core_salsa20_INPUTBYTES
-#define crypto_core_KEYBYTES crypto_core_salsa20_KEYBYTES
-#define crypto_core_CONSTBYTES crypto_core_salsa20_CONSTBYTES
+/* #define crypto_core_OUTPUTBYTES crypto_core_salsa20_OUTPUTBYTES */
+/* #define crypto_core_INPUTBYTES crypto_core_salsa20_INPUTBYTES */
+/* #define crypto_core_KEYBYTES crypto_core_salsa20_KEYBYTES */
+/* #define crypto_core_CONSTBYTES crypto_core_salsa20_CONSTBYTES */
 
 #define crypto_hash_BYTES 64
 
@@ -23,17 +28,18 @@
 #define crypto_scalarmult_BYTES 32
 #define crypto_scalarmult_SCALARBYTES 32
 
-#define crypto_secretbox_KEYBYTES crypto_secretbox_xsalsa20poly1305_KEYBYTES
-#define crypto_secretbox_NONCEBYTES crypto_secretbox_xsalsa20poly1305_NONCEBYTES
-#define crypto_secretbox_ZEROBYTES crypto_secretbox_xsalsa20poly1305_ZEROBYTES
-#define crypto_secretbox_BOXZEROBYTES crypto_secretbox_xsalsa20poly1305_BOXZEROBYTES
+#define crypto_secretbox_NONCEBYTES = 24
+#define crypto_secretbox_KEYBYTES   = 32
+#define crypto_secretbox_MACBYTES   = 16
+#define crypto_secretbox_ZEROBYTES 32
+#define crypto_secretbox_BOXZEROBYTES 16
 
 #define crypto_sign_BYTES 64
 #define crypto_sign_PUBLICKEYBYTES 32
 #define crypto_sign_SECRETKEYBYTES 64
 
-#define crypto_stream_KEYBYTES crypto_stream_xsalsa20_KEYBYTES
-#define crypto_stream_NONCEBYTES crypto_stream_xsalsa20_NONCEBYTES
+#define crypto_stream_KEYBYTES 32
+#define crypto_stream_NONCEBYTES 24
 
 
 /* Base primitives */
