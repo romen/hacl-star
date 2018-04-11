@@ -36,4 +36,7 @@
 #include "Hacl_Policies.h"
 #include "Hacl_Poly1305_32.h"
 #include "Hacl_Poly1305_64.h"
+
+#include "NaCl.h"
+
 #endif
